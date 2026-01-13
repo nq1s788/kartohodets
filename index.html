@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Картоходец - Меню</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="menu.js" defer></script>
+</head>
+<body>
+    <h1>Картоходец: Меню</h1>
+
+    <div id="loading-screen">Загрузка...</div>
+
+    <div id="login-screen" style="display: none;">
+        <h2>Вход</h2>
+        <p>Для игры необходимо войти через Google</p>
+        <div id="google-btn"></div>
+    </div>
+
+    <div id="menu-screen" style="display: none;">
+        <h2>Главное меню</h2>
+        <p>Привет, <span id="user-name-display">Игрок</span>!</p>
+        <button id="btn-solo">Играть Соло</button>
+        <button id="btn-multi">Играть Мультиплеер</button>
+        <button id="btn-leaderboard">Таблица лидеров</button>
+        <button id="btn-logout">Выйти</button>
+    </div>
+
+    <div id="leaderboard-screen" style="display: none;">
+        <h2>Таблица лидеров</h2>
+
+        <div id="user-stats">
+            <h3>Ваша статистика</h3>
+            <p>Место: <span id="stat-rank">-</span></p>
+            <p>Очки: <span id="stat-score">-</span></p>
+            <p>Точность: <span id="stat-accuracy">-</span></p>
+            <p>Игр сыграно: <span id="stat-games">-</span></p>
+        </div>
+
+        <div id="top-players">
+            <h3>Топ 10 игроков</h3>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>Имя</th>
+                        <th>Очки</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    </tbody>
+            </table>
+        </div>
+        <button id="btn-back-menu-lb">Назад в меню</button>
+    </div>
+
+    <div id="room-enter-screen" style="display: none;">
+        <h2>Мультиплеер</h2>
+
+        <div id="join-block">
+            <h3>Войти в лобби</h3>
+            <input type="text" id="lobby-code-input" placeholder="6-значный код" maxlength="6">
+            <button id="btn-enter-lobby" disabled>Войти</button>
+        </div>
+
+        <div id="create-block">
+            <h3>Создать лобби</h3>
+            <button id="btn-create-lobby">Создать новую игру (Хост)</button>
+        </div>
+
+        <button id="btn-back-menu-room">Назад в меню</button>
+    </div>
+
+    <div id="lobby-screen" style="display: none;">
+        <h2>Лобби: <span id="lobby-code-display"></span></h2>
+
+        <div id="lobby-status">
+            <p id="guest-msg" style="display: none;">Ожидание начала игры хостом...</p>
+            <button id="btn-start-game" style="display: none;">Начать игру</button>
+        </div>
+
+        <h3>Игроки в комнате:</h3>
+        <ul id="lobby-player-list">
+            </ul>
+
+        <button id="btn-leave-lobby">Покинуть лобби</button>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Картоходец - Соло</title>
+
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDuLp1CUBzwTWRhkyUT4PYR4RnXuEE_UmA&callback=initMap&v=weekly&libraries=marker,geometry"
+        async defer></script>
+
+    <script src="game.js" defer></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Картоходец Demo (Solo)</h1>
+    <a href="index.html" style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: white; padding: 5px;">В меню</a>
+
+    <div id="cover">
+        <div id="maps" class="hidden">
+            <div id="map" style="height: 400px; width: 100%;"></div>
+            <div id="street-view" style="height: 400px; width: 100%;"></div>
+        </div>
+        <div id='search'>ищем место...</div>
+    </div>
+
+    <div id="distanceDisplay"></div>
+
+    <button disabled="true" class='bt' id="guess">Угадать</button>
+    <button class='bt hidden' id="next">Следующий раунд</button>
+</body>
+</html>
