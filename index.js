@@ -7,7 +7,9 @@ const appState = JSON.parse(localStorage.getItem('appState'))
     token: null,
     user: null,
     currentLobby: null,
-    isHost: false
+    isHost: false,
+    games: 1,
+    score: 0,
 };
 console.log(appState);
 

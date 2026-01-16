@@ -75,7 +75,7 @@ if (appState.isHost) {
         // Или отправка сообщения в сокет
         console.log("Хост запустил игру");
         // Редирект в игру (передаем ID лобби и роль)
-        window.location.href = `game_mp.html?lobby=${appState.currentLobby}&host=true`;
+        smoothRedirect(`game_mp.html?lobby=${appState.currentLobby}&host=true`)
     };
 } else {
     startBtn.style.display = 'none';
@@ -85,7 +85,9 @@ if (appState.isHost) {
     // В рамках этого файла (menu.js) мы предполагаем, что как только
     // придет сигнал "game_started", мы делаем редирект.
     // Эмуляция (так как сокеты полностью будут в game_mp.js, здесь просто заглушка):
-    // window.location.href = `game_mp.html?lobby=${appState.currentLobby}`;
+    setTimeout(() => {
+        smoothRedirect(`game_mp.html?lobby=${appState.currentLobby}`)
+    }, 2000);
 
     // Примечание: В реальном проекте здесь уже должно быть подключение к сокету
     // для обновления списка игроков в лобби.

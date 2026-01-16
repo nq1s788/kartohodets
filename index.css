@@ -142,7 +142,7 @@ button {
 	opacity: 0.5;
 }
 
-#btn-enter-lobby:disabled svg {
+.btn:disabled svg {
 	visibility: hidden;
 }
 
