@@ -117,9 +117,9 @@ header span {
 
     visibility: hidden;
     opacity: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: "Imprima", sans-serif;
     color: white;
-    font-weight: 200;
+    font-weight: 100;
     height: 36px;
     font-size: 12pt;
     display: flex;
@@ -139,9 +139,49 @@ header span {
     opacity: 1;
 }
 
+#liders {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.lider {
+    display: flex;
+    background-color: #00000080;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.lider>div {
+    width: calc((100% - 60px) / 3);
+    font-size: 12px;
+    display: flex;
+    padding: 0 5px;
+    align-items: center;
+}
+
+
+.icon {
+    background: url(res/img/icon.png);
+    height: 30px;
+    width: 30px;
+    background-size: cover;
+    position: relative;
+}
+
+.icon .color {
+    position: absolute;
+    height: 30px;
+    width: 30px;
+    mix-blend-mode: color;
+    border-radius: 100%;
+}
+
+
 #distance-cover {
     background-color: #00000080;
-    border-radius: 10px;
+    border-radius: 5px;
     width: 100%;
     padding-top: 12px;
 }
