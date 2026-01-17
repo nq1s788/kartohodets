@@ -5,9 +5,11 @@ const CLIENT_ID = "794548858892-t83a74dfs01bcftf54q1ng82gt9738tj.apps.googleuser
 const appState = JSON.parse(localStorage.getItem('appState'))
     || {
     token: null,
-    user: null,
+    user: 'cool_user',
     currentLobby: null,
     isHost: false,
+    lobbyGames: null,
+    lobbyScore: null,
     games: 1,
     score: 0,
 };
@@ -104,14 +106,14 @@ async function loadLeaderboard() {
 
     // Эмуляция данных
     const mockData = {
-        user: { rank: 8, score: 1869.23, accuracy: 63, games: 17 },
+        user: { rank: 6, score: 1912.34, accuracy: 63, games: 17 },
         top: [
             { name: "qq2345", score: 3524.19 },
             { name: "smellydog356", score: 3318.83 },
             { name: "mclovin", score: 3192.58 },
             { name: "kristiana_F", score: 2523.67 },
             { name: "ivan_gamaz", score: 2473.49 },
-            { name: "ribka_pickmi", score: 1912.34 },
+            { name: "cool_user", score: 1912.34 },
             { name: "sadkun666", score: 1882.47 },
             { name: "azalkinmmm", score: 1869.23 },
             { name: "anna_mrkv", score: 1742.13 },
@@ -130,7 +132,7 @@ async function loadLeaderboard() {
 
     mockData.top.forEach((p, i) => {
         body.innerHTML += `
-    <div class="row ${p.name === 'ozalkinmmm' ? 'me' : ''}">
+    <div class="row ${p.name === appState.user ? 'me' : ''}">
       <div>${i + 1}. ${p.name}</div>
       <div class="score">${p.score.toFixed(2)}</div>
     </div>
@@ -181,7 +183,7 @@ async function createLobby() {
 
 function renderLobbyScreen() {
     localStorage.setItem('appState', JSON.stringify(appState));
-    smoothRedirect('lobby.html');
+    smoothRedirect('../../res/html/lobby.html');
     //window.location.href = 'lobby.html';
 }
 
@@ -207,7 +209,8 @@ function setupEventListeners() {
 
     // Кнопки меню
     document.getElementById('btn-solo').addEventListener('click', () => {
-        window.location.href = 'game.html'; // Переход на соло игру
+        smoothRedirect('../../res/html/game.html')
+        //window.location.href = 'game.html'; // Переход на соло игру
     });
 
     document.getElementById('btn-multi').addEventListener('click', () => {

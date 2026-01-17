@@ -3,6 +3,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const lobbyId = urlParams.get('lobby');
 const isHost = urlParams.get('host') === 'true';
 
+// параметры и состояния
+
 const game = {
     map: null,
     streetView: null,
@@ -13,7 +15,66 @@ const game = {
     players: [],
     pin2d: false,
     firstAns: false,
+    panoId: null
 };
+
+let appState = JSON.parse(localStorage.getItem('appState'));
+let phrases = null;
+
+const PLACE_COLORS = [
+    '#6abb8f',
+    '#789ab7',
+    '#c8a3f5',
+    '#b77894',
+    '#b78878',
+    '#b7af78'
+];
+
+// сокет
+let socket = null;
+const WS_URL = `ws://localhost:8000/ws/${lobbyId}`; // Адрес вебсокета
+
+function connectWebSocket() {
+    const token = localStorage.getItem('kartohodets_token');
+    // Передаем токен при подключении (в реале может быть через subprotocols или query params)
+    socket = new WebSocket(`${WS_URL}?token=${token}`);
+
+    socket.onopen = () => {
+        console.log("WS соединение установлено");
+    };
+
+    socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleServerMessage(msg);
+    };
+
+    socket.onclose = () => {
+        alert("Соединение потеряно");
+    };
+}
+
+function handleServerMessage(msg) {
+    console.log("Сообщение от сервера:", msg);
+
+    switch (msg.type) {
+        case 'pano_id':
+            game.panoId = msg.pano_id;
+            break;
+
+        case 'firstAns':
+            game.firstAns = true;
+            startTimer()
+            break;
+
+        case 'round_result':
+            // Раунд закончен, показываем результаты всех
+            resultGame(msg.results);
+            break;
+    }
+}
+
+// Инициализации
+
 function smoothRedirect(url) {
     const fade = document.getElementById('fade');
     fade.classList.add('active');
@@ -28,10 +89,10 @@ window.addEventListener('load', () => {
     setTimeout(() => fade.classList.remove('active'), 50);
 });
 
-let appState = JSON.parse(localStorage.getItem('appState'));
-console.log(appState)
-
-// Инициализации
+async function loadPhrases() {
+    const res = await fetch('../../res/frase.json');
+    phrases = await res.json();
+}
 
 async function initMap() {
     const { Map } = await google.maps.importLibrary("maps");
@@ -78,16 +139,17 @@ async function initMap() {
             addressControl: false,
         }
     );
-
+    connectWebSocket();
     attachUIEvents();
     updateStreetView();
+    loadPhrases();
 }
 
 function attachUIEvents() {
     document.getElementById('leave').addEventListener('click', () => {
 
         localStorage.setItem('uiState', 'menu-screen');
-        smoothRedirect('index.html')
+        smoothRedirect('../../res/html/lobby.html')
         //window.location.href = 'index.html';
 
     });
@@ -95,7 +157,6 @@ function attachUIEvents() {
     if (isHost) {
         document.querySelectorAll('.host-controls').forEach(x => x.classList.remove('hidden'))
     }
-
 
     document.getElementById("guess").addEventListener("click", clickGuess);
     document.getElementById("next").addEventListener("click", resetGame);
@@ -105,25 +166,15 @@ function attachUIEvents() {
     map.addEventListener('dblclick', () => { if (!game.pin2d) map.classList.add('bigger') });
     map.addEventListener('mouseleave', () => { if (!game.pin2d) map.classList.remove('bigger') });
 }
-let phrases = null;
-
-async function loadPhrases() {
-    const res = await fetch('res/frase.json');
-    phrases = await res.json();
-}
-
-loadPhrases();
-
 
 // Игровая логика
 
 function updateStreetView() {
-    debugOtherAnsFirst() // ЭМУЛЯЦИЯ УДАЛИТЬ
+    const svService = new google.maps.StreetViewService();
+    showGameUI('search');
+
     if (isHost) {
         const coords = getRandomCoords();
-        const svService = new google.maps.StreetViewService();
-        showGameUI('search');
-
         svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
             if (status === google.maps.StreetViewStatus.OK) {
                 game.ansLoc = data.location.latLng;
@@ -131,6 +182,10 @@ function updateStreetView() {
                 showGameUI('guess');
                 console.log('нашлась панорама', data.location.pano)
                 //отправить на сервер data.location.pano
+                socket.send(JSON.stringify({
+                    type: 'pano_id',
+                    pano_id: data.location.pano
+                }));
             } else {
                 console.log("нет панорамы");
                 updateStreetView();
@@ -138,12 +193,9 @@ function updateStreetView() {
         });
     }
     else {
-        showGameUI('search');
-        const svService = new google.maps.StreetViewService();
-
         //получили panoId
-        let panoId = 'IzDel64coyePHXUADioa8A' //ЗАГЛУШКА
-        svService.getPanorama({ pano: panoId }, (data, status) => {
+        game.panoId = 'IzDel64coyePHXUADioa8A' //ЗАГЛУШКА
+        svService.getPanorama({ pano: game.panoId }, (data, status) => {
             if (status === google.maps.StreetViewStatus.OK) {
                 game.ansLoc = data.location.latLng;
                 game.streetView.setPosition(game.ansLoc);
@@ -163,36 +215,56 @@ function clickGuess() {
     if (!game.firstAns) {
         game.firstAns = true;
         //отправить сообщение на сервер запустить таймеры других игроков
+        socket.send(JSON.stringify({ type: 'first_ans', }));
         startTimer()
     }
-    //lock guess btn
     showGameUI('wait');
+}
 
+function startTimer() { //вызывается когда получили сообщение от сокета "кто-то запустил таймер" (наш ответ не первый)
+    game.firstAns = true
+
+    const timer = document.getElementById('timer')
+    timer.classList.remove('hidden')
+    let sec = +timer.textContent;
+
+    const interval = setInterval(() => {
+        sec--;
+        timer.textContent = sec;
+
+        if (sec <= 0) {
+            clearInterval(interval);
+            game.firstAns = false
+            myResult();
+            //playersResults - получаем с сервера
+            playersResults = debugPlayersRes()
+            resultGame(playersResults);
+        }
+    }, 1000);
 }
 
 let _myRes = { name: appState.user, };
 function myResult() {
+    const pos = game.userMarker.position;
+    _myRes.coord = { lat: pos.lat, lng: pos.lng };
     //отправить на сервер lat lng
-    let lat = game.userMarker.position.lat;
-    let lng = game.userMarker.position.lng
-    _myRes.coord = { lat, lng };
-    console.log(lat, lng)
+    socket.send(JSON.stringify({
+        type: 'my_res',
+        lat: pos.lat,
+        lng: pos.lng
+    }));
 
     let distance = google.maps.geometry.spherical.computeDistanceBetween(game.ansLoc, game.userMarker.position);
 
     document.getElementById("frase").textContent = frase(distance / 1000)
-    appState.score += scoreFromDistance(distance / 1000)
-    appState.games++;
+    appState.lobbyScore += scoreFromDistance(distance / 1000)
+    appState.lobbyGames++;
     localStorage.setItem('appState', JSON.stringify(appState));
-    console.log(appState)
 
-    if (distance < 1000) distance = distance + ' m';
-    else if (distance < 100000) distance = (distance / 1000).toFixed(2) + ' km';
-    else distance = (distance / 1000).toFixed(0) + ' km'
     document.getElementById("res-cover").classList.add('visible');
-    document.getElementById("distance").textContent = distance;
+    document.getElementById("distance").textContent =
+        distance < 1000 ? `${distance} m` : `${(distance / 1000).toFixed(1)} km`;
 }
-
 
 function resultGame(playersResults) {
     game.ansMarker = new google.maps.marker.AdvancedMarkerElement({
@@ -219,7 +291,6 @@ function resultGame(playersResults) {
 
     addRating(ranked);
     addMarkeres(ranked);
-
     showGameUI('next');
 }
 
@@ -228,63 +299,21 @@ function resetGame() {
 
     document.getElementById("res-cover").classList.remove('visible');
     game.userMarker.gmpDraggable = true;
-    if (game.ansMarker) {
-        game.ansMarker.map = null;
-        game.ansMarker = null;
-    }
+    if (game.ansMarker) game.ansMarker.map = null;
 
-    if (game.players) {
-        game.players.forEach(p => {
-            p.marker.setMap(null);
-            p.line.setMap(null);
-        });
-        game.players = [];
-    }
+    game.players.forEach(p => {
+        p.marker.setMap(null);
+        p.line.setMap(null);
+    });
+
+    game.players = [];
     game.userMarker.position = { lat: 0, lng: 0 };
     game.map.setZoom(1);
     game.map.panTo(game.userMarker.position);
     game.streetView.setZoom(1);
     game.firstAns = false;
+    game.panoId = null;
     updateStreetView();
-}
-
-//вызывается когда получили сообщение от сокета "кто-то запустил таймер" (наш ответ не первый)
-function startTimer() {
-    console.log('startTimer')
-    game.firstAns = true
-    const timer = document.getElementById('timer')
-    timer.classList.remove('hidden')
-    let sec = +timer.textContent;
-    const interval = setInterval(() => {
-        sec--;
-        timer.textContent = sec;
-
-        if (sec <= 0) {
-            clearInterval(interval);
-            game.firstAns = false
-            myResult();
-            //playersResults - получаем с сервера
-            resultGame(debugPlayersRes());
-        }
-    }, 1000);
-}
-
-
-function debugOtherAnsFirst() {
-    setTimeout(() => { if (!game.firstAns) startTimer() }, 5000 * (1 + Math.random()))
-}
-
-function debugPlayersRes() {
-    let playersResults = [
-        { name: "qq2345", coord: getRandomCoords() },
-        { name: "smellydog356", coord: getRandomCoords() },
-        { name: "mclovin", coord: getRandomCoords() },
-        { name: "kristiana_F", coord: getRandomCoords() },
-        { name: "ivan_gamaz", coord: getRandomCoords() },
-        { name: "ribka_pickmi", coord: getRandomCoords() }
-    ]
-    playersResults.push(_myRes);
-    return playersResults
 }
 
 // UI и вспомогательные функции
@@ -301,11 +330,13 @@ function showGameUI(stage) {
             document.getElementById('panorama-overlay').classList.remove('dark')
             document.getElementById("map").classList.remove('bigger')
 
-            document.getElementById("games-count").textContent = appState.games;
-            document.getElementById("score").textContent = appState.score;
+            document.getElementById("games-count").textContent = appState.lobbyGames;
+            document.getElementById("score").textContent = appState.lobbyScore;
 
             break;
         case 'guess':
+            debugOtherAnsFirst() // ЭМУЛЯЦИЯ УДАЛИТЬ
+
             game.pin2d = false;
             document.getElementById('map3d').classList.remove('blur');
             document.getElementById('map3d').classList.remove('hidden');
@@ -320,6 +351,9 @@ function showGameUI(stage) {
             const timer = document.getElementById('timer')
             timer.classList.add('hidden');
             timer.textContent = 15;
+
+            if (!isHost)
+                debugHostNextGame()
             break;
         case 'wait':
             document.getElementById("guess").disabled = true;
@@ -333,12 +367,13 @@ function addRating(ranked) {
     ranked.slice(0, 3).forEach((player, index) => {
         const div = document.createElement('div');
         div.className = 'lider';
-        div.style.borderLeft = `6px solid ${PLACE_COLORS[index]}`;
+        //div.style.borderLeft = `6px solid ${PLACE_COLORS[index]}`;
 
         div.innerHTML = `
-            <p><span class="icon"></span>${player.name}</p>
-            <p>${scoreFromDistance(player.distance / 1000)}</p>
-            <p>${(player.distance / 1000).toFixed(0)} km</p>
+            <span class="icon"><div class="color" style="background-color: ${PLACE_COLORS[index]}"></div></span>
+            <div style="justify-content: left;">${player.name}</div>
+            <div style="justify-content: center;">${scoreFromDistance(player.distance / 1000)}</div>
+            <div style="justify-content: right;">${(player.distance / 1000).toFixed(0)} km</div>
         `;
 
         liders.appendChild(div);
@@ -362,42 +397,7 @@ function addMarkeres(ranked) {
 
         game.players.push({ marker, line });
     });
-    console.log(game.players)
 }
-
-function getRandomCoords() {
-    const lat = -90 + Math.random() * 180;
-    const lng = -180 + Math.random() * 360;
-    return { lat, lng };
-}
-
-function createPlayerPin(color) {
-    return new google.maps.marker.PinElement({
-        background: color,
-        borderColor: "#fff",
-        glyphColor: "#fff",
-    });
-}
-
-
-function drawLine(a, b) {
-    return new google.maps.Polyline({
-        path: [a, b],
-        strokeOpacity: 0, // основной stroke скрыт
-        icons: [{
-            icon: {
-                path: 'M 0,-1 0,1', // маленькая вертикальная черта
-                strokeOpacity: 1,
-                strokeColor: '#000',
-                strokeWeight: 1,
-            },
-            offset: '0',
-            repeat: '10px',
-        }],
-        map: game.map,
-    });
-}
-
 
 function frase(distanceKm) {
     if (!phrases) return "";
@@ -418,23 +418,65 @@ function frase(distanceKm) {
     return list[x];
 }
 
-
 function scoreFromDistance(distance) {
     mx = 1000
     let score = Math.round(mx * Math.exp(-distance / 1000));
-    console.log('distance', distance, 'score', score);
 
     return score;
 }
 
-const PLACE_COLORS = [
-    '#6abb8f', // 1
-    '#789ab7', // 2
-    '#c8a3f5', // 3
-    '#b77894', // 4
-    '#b78878', // 5
-    '#b7af78'  // 6+
-];
+function getRandomCoords() {
+    const lat = -80 + Math.random() * 160;
+    const lng = -180 + Math.random() * 360;
+    return { lat, lng };
+}
+function createPlayerPin(color) {
+    return new google.maps.marker.PinElement({
+        background: color,
+        borderColor: "#fff",
+        glyphColor: "#fff",
+    });
+}
 
+function drawLine(a, b) {
+    return new google.maps.Polyline({
+        path: [a, b],
+        strokeOpacity: 0, // основной stroke скрыт
+        icons: [{
+            icon: {
+                path: 'M 0,-1 0,1', // маленькая вертикальная черта
+                strokeOpacity: 1,
+                strokeColor: '#000',
+                strokeWeight: 1,
+            },
+            offset: '0',
+            repeat: '10px',
+        }],
+        map: game.map,
+    });
+}
 
-//initMap();
+// DEBUG эмуляции
+
+function debugOtherAnsFirst() {
+    setTimeout(() => { if (!game.firstAns) startTimer() }, 5000 * (1 + Math.random()))
+}
+
+function debugPlayersRes() {
+    let playersResults = [
+        { name: "qq2345", coord: getRandomCoords() },
+        { name: "smellydog356", coord: getRandomCoords() },
+        { name: "mclovin", coord: getRandomCoords() },
+        { name: "kristiana_F", coord: getRandomCoords() },
+        { name: "ivan_gamaz", coord: getRandomCoords() },
+        { name: "ribka_pickmi", coord: getRandomCoords() }
+    ]
+    playersResults.push(_myRes);
+    console.log(playersResults)
+    return playersResults
+}
+
+function debugHostNextGame() {
+    setTimeout(resetGame, 5000 * (1 + Math.random()))
+
+}
