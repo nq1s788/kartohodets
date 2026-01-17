@@ -15,6 +15,7 @@ const game = {
     players: [],
     pin2d: false,
     firstAns: false,
+    panoId: null
 };
 
 let appState = JSON.parse(localStorage.getItem('appState'));
@@ -28,6 +29,49 @@ const PLACE_COLORS = [
     '#b78878',
     '#b7af78'
 ];
+
+// сокет
+let socket = null;
+const WS_URL = `ws://localhost:8000/ws/${lobbyId}`; // Адрес вебсокета
+
+function connectWebSocket() {
+    const token = localStorage.getItem('kartohodets_token');
+    // Передаем токен при подключении (в реале может быть через subprotocols или query params)
+    socket = new WebSocket(`${WS_URL}?token=${token}`);
+
+    socket.onopen = () => {
+        console.log("WS соединение установлено");
+    };
+
+    socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleServerMessage(msg);
+    };
+
+    socket.onclose = () => {
+        alert("Соединение потеряно");
+    };
+}
+
+function handleServerMessage(msg) {
+    console.log("Сообщение от сервера:", msg);
+
+    switch (msg.type) {
+        case 'pano_id':
+            game.panoId = msg.pano_id;
+            break;
+
+        case 'firstAns':
+            game.firstAns = true;
+            startTimer()
+            break;
+
+        case 'round_result':
+            // Раунд закончен, показываем результаты всех
+            resultGame(msg.results);
+            break;
+    }
+}
 
 // Инициализации
 
@@ -46,7 +90,7 @@ window.addEventListener('load', () => {
 });
 
 async function loadPhrases() {
-    const res = await fetch('res/frase.json');
+    const res = await fetch('../../res/frase.json');
     phrases = await res.json();
 }
 
@@ -95,7 +139,7 @@ async function initMap() {
             addressControl: false,
         }
     );
-
+    connectWebSocket();
     attachUIEvents();
     updateStreetView();
     loadPhrases();
@@ -105,7 +149,7 @@ function attachUIEvents() {
     document.getElementById('leave').addEventListener('click', () => {
 
         localStorage.setItem('uiState', 'menu-screen');
-        smoothRedirect('index.html')
+        smoothRedirect('../../res/html/lobby.html')
         //window.location.href = 'index.html';
 
     });
@@ -126,7 +170,6 @@ function attachUIEvents() {
 // Игровая логика
 
 function updateStreetView() {
-    debugOtherAnsFirst() // ЭМУЛЯЦИЯ УДАЛИТЬ
     const svService = new google.maps.StreetViewService();
     showGameUI('search');
 
@@ -139,6 +182,10 @@ function updateStreetView() {
                 showGameUI('guess');
                 console.log('нашлась панорама', data.location.pano)
                 //отправить на сервер data.location.pano
+                socket.send(JSON.stringify({
+                    type: 'pano_id',
+                    pano_id: data.location.pano
+                }));
             } else {
                 console.log("нет панорамы");
                 updateStreetView();
@@ -147,8 +194,8 @@ function updateStreetView() {
     }
     else {
         //получили panoId
-        let panoId = 'IzDel64coyePHXUADioa8A' //ЗАГЛУШКА
-        svService.getPanorama({ pano: panoId }, (data, status) => {
+        game.panoId = 'IzDel64coyePHXUADioa8A' //ЗАГЛУШКА
+        svService.getPanorama({ pano: game.panoId }, (data, status) => {
             if (status === google.maps.StreetViewStatus.OK) {
                 game.ansLoc = data.location.latLng;
                 game.streetView.setPosition(game.ansLoc);
@@ -168,6 +215,7 @@ function clickGuess() {
     if (!game.firstAns) {
         game.firstAns = true;
         //отправить сообщение на сервер запустить таймеры других игроков
+        socket.send(JSON.stringify({ type: 'first_ans', }));
         startTimer()
     }
     showGameUI('wait');
@@ -189,7 +237,8 @@ function startTimer() { //вызывается когда получили со�
             game.firstAns = false
             myResult();
             //playersResults - получаем с сервера
-            resultGame(debugPlayersRes());
+            playersResults = debugPlayersRes()
+            resultGame(playersResults);
         }
     }, 1000);
 }
@@ -199,12 +248,17 @@ function myResult() {
     const pos = game.userMarker.position;
     _myRes.coord = { lat: pos.lat, lng: pos.lng };
     //отправить на сервер lat lng
+    socket.send(JSON.stringify({
+        type: 'my_res',
+        lat: pos.lat,
+        lng: pos.lng
+    }));
 
     let distance = google.maps.geometry.spherical.computeDistanceBetween(game.ansLoc, game.userMarker.position);
 
     document.getElementById("frase").textContent = frase(distance / 1000)
-    appState.score += scoreFromDistance(distance / 1000)
-    appState.games++;
+    appState.lobbyScore += scoreFromDistance(distance / 1000)
+    appState.lobbyGames++;
     localStorage.setItem('appState', JSON.stringify(appState));
 
     document.getElementById("res-cover").classList.add('visible');
@@ -258,6 +312,7 @@ function resetGame() {
     game.map.panTo(game.userMarker.position);
     game.streetView.setZoom(1);
     game.firstAns = false;
+    game.panoId = null;
     updateStreetView();
 }
 
@@ -275,11 +330,13 @@ function showGameUI(stage) {
             document.getElementById('panorama-overlay').classList.remove('dark')
             document.getElementById("map").classList.remove('bigger')
 
-            document.getElementById("games-count").textContent = appState.games;
-            document.getElementById("score").textContent = appState.score;
+            document.getElementById("games-count").textContent = appState.lobbyGames;
+            document.getElementById("score").textContent = appState.lobbyScore;
 
             break;
         case 'guess':
+            debugOtherAnsFirst() // ЭМУЛЯЦИЯ УДАЛИТЬ
+
             game.pin2d = false;
             document.getElementById('map3d').classList.remove('blur');
             document.getElementById('map3d').classList.remove('hidden');
@@ -297,7 +354,6 @@ function showGameUI(stage) {
 
             if (!isHost)
                 debugHostNextGame()
-
             break;
         case 'wait':
             document.getElementById("guess").disabled = true;
