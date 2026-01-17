@@ -1,7 +1,5 @@
 import datetime
-from xmlrpc.client import Boolean
-
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Time
 from .database import Base
 
 
@@ -13,5 +11,5 @@ class Room(Base):
     pan_id = Column(String)
     host_id = Column(Integer, foreign_key="Users.id")
     start_coord = Column(String)
-    current_round_end_time = Column(datetime.datetime.timestamp)
+    current_round_end_time = Column(Time)
 

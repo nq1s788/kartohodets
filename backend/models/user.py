@@ -1,6 +1,4 @@
-from xmlrpc.client import Boolean
-
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from .database import Base
 
 
