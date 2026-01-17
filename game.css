@@ -139,6 +139,31 @@ header span {
     opacity: 1;
 }
 
+.lider {
+    display: flex;
+}
+
+.lider p {
+    width: 33%;
+    font-size: 12px;
+
+}
+
+.lider p:first-child {
+    text-align: left;
+}
+
+.lider p:last-child {
+    text-align: right;
+}
+
+.icon{
+    background: url(res/icon.png);
+    height: 30px;
+    width: 30px;
+}
+
+
 #distance-cover {
     background-color: #00000080;
     border-radius: 10px;
