@@ -22,7 +22,11 @@ pip3 install -e .
 
 #### через бек
 ```bash
-python app.py
+python backend/app.py
+```
+или 
+```bash
+python3 backend/app.py
 ```
 
 
