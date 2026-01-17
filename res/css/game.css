@@ -163,7 +163,7 @@ header span {
 
 
 .icon {
-    background: url(res/icon.png);
+    background: url(res/img/icon.png);
     height: 30px;
     width: 30px;
     background-size: cover;

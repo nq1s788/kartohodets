@@ -17,6 +17,8 @@ window.addEventListener('load', () => {
 
 
 appState = JSON.parse(localStorage.getItem('appState'));
+appState.lobbyGames = 1;
+appState.lobbyScore = 0;
 console.log(appState)
 document.getElementById('lobby-code-display').innerText = appState.currentLobby;
 
@@ -37,7 +39,7 @@ function addMarker(playerName) {
     marker.style.left = x + 'px'
 
     const img = document.createElement('img');
-    img.src = 'res/marker.png';
+    img.src = '../../res/img/marker.png';
     img.style.height = '30px';
     img.style.width = '19px';
 
@@ -75,7 +77,7 @@ if (appState.isHost) {
         // Или отправка сообщения в сокет
         console.log("Хост запустил игру");
         // Редирект в игру (передаем ID лобби и роль)
-        smoothRedirect(`game_mp.html?lobby=${appState.currentLobby}&host=true`)
+        smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}&host=true`)
     };
 } else {
     startBtn.style.display = 'none';
@@ -84,9 +86,9 @@ if (appState.isHost) {
     // Гость должен слушать сокет на предмет начала игры.
     // В рамках этого файла (menu.js) мы предполагаем, что как только
     // придет сигнал "game_started", мы делаем редирект.
-    // Эмуляция (так как сокеты полностью будут в game_mp.js, здесь просто заглушка):
+    // Эмуляция (так как сокеты полностью будут в res/scripts/game_mp.js, здесь просто заглушка):
     setTimeout(() => {
-        smoothRedirect(`game_mp.html?lobby=${appState.currentLobby}`)
+        smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`)
     }, 2000);
 
     // Примечание: В реальном проекте здесь уже должно быть подключение к сокету
@@ -97,11 +99,13 @@ if (appState.isHost) {
 document.getElementById('btn-leave-lobby').addEventListener('click', () => {
     // Запрос: POST /api/lobby/leave
     appState.currentLobby = null;
-    appState.isHost = false
+    appState.isHost = false;
+    appState.lobbyGames = null;
+    appState.lobbyScore = null;
 
     localStorage.setItem('appState', JSON.stringify(appState));
     localStorage.setItem('uiState', 'room-enter-screen');
-    smoothRedirect('index.html')
+    smoothRedirect('../../index.html')
     //window.location.href = 'index.html';
 
 });

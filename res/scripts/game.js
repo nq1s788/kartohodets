@@ -81,7 +81,7 @@ function attachUIEvents() {
     document.getElementById('leave').addEventListener('click', () => {
 
         localStorage.setItem('uiState', 'menu-screen');
-        smoothRedirect('index.html')
+        smoothRedirect('../../index.html')
         //window.location.href = 'index.html';
 
     });
@@ -98,7 +98,7 @@ function attachUIEvents() {
 let phrases = null;
 
 async function loadPhrases() {
-    const res = await fetch('res/frase.json');
+    const res = await fetch('../../res/frase.json');
     phrases = await res.json();
 }
 
