@@ -1,4 +1,3 @@
-import datetime
 from sqlalchemy import Column, Integer, String, Time
 from .database import Base
 
