@@ -1,5 +1,7 @@
 from pydantic_core.core_schema import none_schema
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import desc
+
 from backend.models.user import User
 
 class UserService:
@@ -13,7 +15,28 @@ class UserService:
 
     @staticmethod
     def get_empty_id(db: Session):
-        return len(db.query(User).all())
+        return db.query(User).count()
+
+    @staticmethod
+    def get_leaderboard_and_stats(db: Session, email: str):
+        user = User.get_user_by_email(db, email)
+        if not user:
+            return None
+        users = db.query(User).order_by(desc(User.elo)).all()
+        rank = 0
+        for user in users:
+            rank += 1
+            if user.email == email:
+                break
+        stats = {'rank': rank, 'score': user.elo, 'games': user.matches}
+        leaderboard = []
+        for user in users:
+            leaderboard.append({
+                'name': user.email[:user.email.find('@')],
+                'score': user.elo,
+            })
+        return {'user': stats, 'top': leaderboard}
+
 
     @staticmethod
     def create_user(db: Session, email: str):
