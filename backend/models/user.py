@@ -11,7 +11,7 @@ class User(Base):
     matches = Column(Integer)
     coord = Column(String)
     room_id = Column(Integer, foreign_key="Rooms.id")
-    temp_elo = Column(Integer)
+    sum_km = Column(Integer)
     is_ready = Column(Boolean)
 
 
