@@ -13,5 +13,7 @@ class User(Base):
     room_id = Column(Integer, foreign_key="Rooms.id")
     sum_km = Column(Integer)
     is_ready = Column(Boolean)
+    temp_elo = Column(Integer)
+    temp_km = Column(Integer)
 
 

@@ -1,4 +1,3 @@
-from pydantic_core.core_schema import none_schema
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import desc
 
@@ -6,7 +5,7 @@ from backend.models.user import User
 
 class UserService:
     @staticmethod
-    def get_user(db: Session, user_id: int):
+    def get_user_by_id(db: Session, user_id: int):
         return db.query(User).filter(User.id == user_id).first()
 
     @staticmethod
@@ -52,7 +51,6 @@ class UserService:
         if not user:
             return None
         user.room_id = room_id
-        db.add(user)
         db.commit()
         db.refresh(user)
         return user
@@ -63,7 +61,17 @@ class UserService:
         if not user:
             return None
         user.coord = str(coord_x) + ' ' + str(coord_y)
-        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
+
+    @staticmethod
+    def update_temp_score(db: Session, email: str, km: int):
+        user = User.get_user_by_email(db, email)
+        if not user:
+            return None
+        user.temp_km = km
+        user.temp_elo = 12742 - km
         db.commit()
         db.refresh(user)
         return user
@@ -88,7 +96,6 @@ class UserService:
         user.sum_km += km
         user.matches += 1
         user.elo = user.sum_km / user.matches + (10 if winner else 0)
-        db.add(user)
         db.commit()
         db.refresh(user)
         return user.elo
