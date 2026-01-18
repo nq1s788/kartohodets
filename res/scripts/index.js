@@ -83,7 +83,7 @@ function handleGoogleResponse(response) {
     // Отправляем токен на наш бэкенд для верификации и получения сессионного токена
     // Запрос: POST /api/auth/google { token: googleToken }
     console.log("Отправка токена на бэкенд:", googleToken);
-
+    //отправить почту
     // Эмуляция ответа от сервера
     const serverToken = "mock_server_token_" + Date.now();
     localStorage.setItem('kartohodets_token', serverToken);
@@ -172,18 +172,22 @@ async function createLobby() {
     // Запрос: POST /api/lobby/create
     // Ожидаемый ответ: { lobby_code: "123456" }
 
-    const newCode = Math.floor(100000 + Math.random() * 900000); // Эмуляция
-    console.log("Создано лобби:", newCode);
 
-    appState.currentLobby = newCode;
-    appState.isHost = true;
-
+    //отправить хоста - запрос 
+    //после get c lobbyId - renderLobbyScreen(lobbyId), а этот вызов УДАЛИТЬ
     renderLobbyScreen();
 }
 
-function renderLobbyScreen() {
+function renderLobbyScreen() { //renderLobbyScreen(lobbyId)
+    const newCode = Math.floor(100000 + Math.random() * 900000); // Эмуляция
+    console.log("Создано лобби:", newCode);
+    //newCode менять на lobbyId
+    appState.currentLobby = newCode;
+    appState.isHost = true;
     localStorage.setItem('appState', JSON.stringify(appState));
-    smoothRedirect('../../res/html/lobby.html');
+    smoothRedirect('../../res/html/lobby.html?');
+    //    smoothRedirect(`../../res/html/lobby.html?lobby=${appState.currentLobby}&host=true`);
+
     //window.location.href = 'lobby.html';
 }
 
@@ -199,7 +203,7 @@ function showScreen(screenId) {
 }
 
 function setupEventListeners() {
-    document.getElementById("google-btn").addEventListener('click', () => {
+    document.getElementById("google-btn").addEventListener('click', () => { //delete
         appState.user = 'player';
         const serverToken = "mock_server_token_" + Date.now();
         localStorage.setItem('kartohodets_token', serverToken);

@@ -140,7 +140,7 @@ function resultGame() {
     game.userMarker.gmpDraggable = false;
 
     let distance = google.maps.geometry.spherical.computeDistanceBetween(game.ansLoc, game.userMarker.position);
-
+    // отправить км distance *10 и откруглить 
     document.getElementById("frase").textContent = frase(distance / 1000)
     appState.score += scoreFromDistance(distance / 1000)
     appState.games++;

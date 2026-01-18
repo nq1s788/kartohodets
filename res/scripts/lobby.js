@@ -59,7 +59,7 @@ function polarToDecar(rad, d, mx) {
 const startBtn = document.getElementById('btn-start-game');
 const guestMsg = document.getElementById('guest-msg');
 
-// Эмуляция данных
+// Эмуляция данных заменить на функцию которая вызвана сокетом
 const mockData = {
     players: ['rimeifutamo', 'nq1s788', 'anya_mrkv3']
 };
@@ -72,10 +72,11 @@ if (appState.isHost) {
     guestMsg.style.display = 'none';
 
     // Навешиваем обработчик старта игры только для хоста
-    startBtn.onclick = () => {
+    startBtn.onclick = () => { // 
         // Запрос: POST /api/lobby/{code}/start
         // Или отправка сообщения в сокет
         console.log("Хост запустил игру");
+
         // Редирект в игру (передаем ID лобби и роль)
         smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}&host=true`)
     };
