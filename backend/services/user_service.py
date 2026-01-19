@@ -1,3 +1,4 @@
+from sqlalchemy import null
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import desc
 
@@ -10,7 +11,7 @@ class UserService:
 
     @staticmethod
     def get_user_by_email(db: Session, email: str):
-        return db.query(User).filter(User.email == email).first()
+        return db.query(User).filter(User.email == email + '@gmail.com').first()
 
     @staticmethod
     def get_empty_id(db: Session):
@@ -51,6 +52,16 @@ class UserService:
         if not user:
             return None
         user.room_id = room_id
+        db.commit()
+        db.refresh(user)
+        return user
+
+    @staticmethod
+    def remove_user_from_room(db: Session, email: str):
+        user = User.get_user_by_email(db, email)
+        if not user:
+            return None
+        user.room_id = null
         db.commit()
         db.refresh(user)
         return user

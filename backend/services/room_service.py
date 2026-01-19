@@ -36,7 +36,7 @@ class RoomService:
         return room
 
     @staticmethod
-    def get_all_users_with_score(db: Session, room_id: int):
+    def get_all_users_with_coord(db: Session, room_id: int):
         room = Room.get_room_by_id(db, room_id)
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
