@@ -45,3 +45,4 @@ class RoomService:
         for user in users:
             results.append({'name': user.email[:user.email.find('@')],
                             'coord': tuple(map(float, user.coord.split()))})
+        return results
