@@ -40,7 +40,7 @@ class UserService:
 
     @staticmethod
     def create_user(db: Session, email: str):
-        user = User(email=email, id=User.get_emptyid(db))
+        user = User(email=email, id=User.get_emptyid(db), temp_elo=0, sum_km = 0, matches=0)
         db.add(user)
         db.commit()
         db.refresh(user)
@@ -81,8 +81,17 @@ class UserService:
         user = User.get_user_by_email(db, email)
         if not user:
             return None
-        user.temp_km = km
-        user.temp_elo = 12742 - km
+        user.temp_elo += 12742 - km
+        db.commit()
+        db.refresh(user)
+        return user
+
+    @staticmethod
+    def zero_temp_score(db: Session, email: str):
+        user = User.get_user_by_email(db, email)
+        if not user:
+            return None
+        user.temp_elo = 0
         db.commit()
         db.refresh(user)
         return user

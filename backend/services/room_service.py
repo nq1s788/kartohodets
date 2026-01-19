@@ -46,3 +46,14 @@ class RoomService:
             results.append({'name': user.email[:user.email.find('@')],
                             'coord': tuple(map(float, user.coord.split()))})
         return results
+
+    @staticmethod
+    def get_all_users_with_coord_and_tempelo(db: Session, room_id: int):
+        room = Room.get_room_by_id(db, room_id)
+        users = db.query(User).filter(User.room_id == room.id).all()
+        results = []
+        for user in users:
+            results.append({'name': user.email[:user.email.find('@')],
+                            'coord': tuple(map(float, user.coord.split())),
+                            'temp_score': user.temp_elo})
+        return results
