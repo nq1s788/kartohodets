@@ -41,7 +41,7 @@ function connectWebSocket() {
     socket.onopen = () => {
         console.log("WS Game connection established");
     };
-    
+
     socket.onmessage = (event) => {
         const msg = JSON.parse(event.data);
         handleServerMessage(msg);
@@ -54,15 +54,7 @@ function handleServerMessage(msg) {
     switch (msg.type) {
         case 'pano_id':
             game.panoId = msg.pano_id;
-            // Инициируем загрузку панорамы для игрока
-            const svService = new google.maps.StreetViewService();
-            svService.getPanorama({ pano: game.panoId }, (data, status) => {
-                if (status === google.maps.StreetViewStatus.OK) {
-                    game.ansLoc = data.location.latLng;
-                    game.streetView.setPosition(game.ansLoc);
-                    showGameUI('guess');
-                }
-            });
+            updateStreetViewPlayer();
             break;
 
         case 'first_ans':
@@ -172,12 +164,12 @@ function attachUIEvents() {
 
     document.getElementById("guess").addEventListener("click", clickGuess);
     document.getElementById("next").addEventListener("click", () => {
-    //хост отправляет { type: 'game_reset', currentLobby: +appState.lobbyGames }
-    socket.send(JSON.stringify({ 
-        type: 'game_reset', 
-        currentLobby: +appState.lobbyGames 
-    }));
-    resetGame(); 
+        //хост отправляет { type: 'game_reset', currentLobby: +appState.lobbyGames }
+        socket.send(JSON.stringify({
+            type: 'game_reset',
+            currentLobby: +appState.lobbyGames
+        }));
+        resetGame();
     });
 
     const map = document.getElementById("map");
@@ -199,18 +191,35 @@ function updateStreetView() {
                 game.ansLoc = data.location.latLng;
                 game.streetView.setPosition(game.ansLoc);
                 showGameUI('guess');
-                
+
                 //хост отправляет pano_id
                 socket.send(JSON.stringify({
                     type: 'pano_id',
                     pano_id: data.location.pano,
                     currentLobby: appState.currentLobby
                 }));
+                console.log(data.location.pano)
             } else {
                 updateStreetView(); //если панорама не найдена
             }
         });
-    } 
+    }
+    else{
+        /*game.panoId='umcDun81PnfGiw05xxrTOA';
+        updateStreetViewPlayer()*/
+    }
+}
+
+function updateStreetViewPlayer() {
+    // Инициируем загрузку панорамы для игрока
+    const svService = new google.maps.StreetViewService();
+    svService.getPanorama({ pano: game.panoId }, (data, status) => {
+        if (status === google.maps.StreetViewStatus.OK) {
+            game.ansLoc = data.location.latLng;
+            game.streetView.setPosition(game.ansLoc);
+            showGameUI('guess');
+        }
+    });
 }
 
 function clickGuess() {
@@ -219,8 +228,8 @@ function clickGuess() {
     if (!game.firstAns) {
         game.firstAns = true;
         //отправляем first_ans {type: first_ans, currentLobby:число}
-        socket.send(JSON.stringify({ 
-            type: 'first_ans', 
+        socket.send(JSON.stringify({
+            type: 'first_ans',
             currentLobby: +appState.lobbyGames
         }));
         startTimer();
@@ -250,7 +259,7 @@ function startTimer() { //вызывается когда получили со�
     }, 1000);
 }
 
-let _myRes = { name: appState.user, };
+let _myRes = { name: appState.user, temp_score:17};
 function myResult() {
     const pos = game.userMarker.position;
 
@@ -480,7 +489,7 @@ function debugPlayersRes() {
         { name: "ivan_gamaz", coord: getRandomCoords(), temp_score: 67 },
         { name: "ribka_pickmi", coord: getRandomCoords(), temp_score: 17 }
     ]
-    playersResults.push(_myRes);
+    //playersResults.push(_myRes);//delete
     console.log(playersResults)
     return playersResults
 }

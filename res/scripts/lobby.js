@@ -25,7 +25,7 @@ document.getElementById('lobby-code-display').innerText = appState.currentLobby;
 const earth = document.getElementById('players-markers');
 
 let socket = null;
-const WS_URL = `ws://localhost:8000/ws/${lobbyId}`; //адрес вебсокета
+const WS_URL = `ws://localhost:8000/ws/${appState.currentLobby}`; //адрес вебсокета
 
 function connectLobbyWebSocket() {
     socket = new WebSocket(WS_URL);
@@ -49,7 +49,7 @@ function handleLobbyMessage(msg) {
         case 'PlayerAdded':
             //get notify_msg = { "type": "PlayerAdded", "text": "AnnaMarkova" }
             console.log("Новый игрок:", msg.text);
-            addMarker(msg.text); 
+            addMarker(msg.text);
             break;
 
         case 'game_started':
@@ -57,13 +57,13 @@ function handleLobbyMessage(msg) {
             console.log("Игра началась");
             smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`);
             break;
-     //можно будет добавить чтоб предыдущих людей прорисовывать
-     /*   case 'init_lobby':
-    // Сервер присылает массив имен: { type: 'init_lobby', players: ['player5', 'player2'] }
-    msg.players.forEach(playerName => {
-        addMarker(playerName); // Рисуем всех, кто уже был
-    });
-    break;*/
+        //можно будет добавить чтоб предыдущих людей прорисовывать
+        /*   case 'init_lobby':
+       // Сервер присылает массив имен: { type: 'init_lobby', players: ['player5', 'player2'] }
+       msg.players.forEach(playerName => {
+           addMarker(playerName); // Рисуем всех, кто уже был
+       });
+       break;*/
     }
 }
 
@@ -120,6 +120,8 @@ if (appState.isHost) {
         } else {
             console.error("Socket not ready");
         }
+        //smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}&host=true`)
+
     };
 } else {
     startBtn.style.display = 'none';
@@ -129,7 +131,7 @@ if (appState.isHost) {
     setTimeout(() => {
         smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`)
     }, 5000);
-
+    
     */
 }
 //тут я запрос пока не добави

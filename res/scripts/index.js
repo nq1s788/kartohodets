@@ -251,14 +251,14 @@ async function createLobby() {
         }
 
         appState.isHost = true;
-        appState.currentLobby = 123123// lobbyCode;
+        appState.currentLobby = lobbyCode;
 
         renderLobbyScreen();
 
     } catch (error) {
         console.error("Ошибка при создании лобби:", error);
-        appState.isHost = true;
-        appState.currentLobby = lobbyCode;
+        /*appState.isHost = true;
+        appState.currentLobby = 123123;*/
 
         renderLobbyScreen();
     }
@@ -270,7 +270,7 @@ function renderLobbyScreen() { //renderLobbyScreen(lobbyId)
     //console.log("Создано лобби:", newCode);
     //newCode менять на lobbyId
     //appState.currentLobby = newCode;
-    smoothRedirect('../../res/html/lobby.html?');
+    smoothRedirect('../../res/html/lobby.html');
     //    smoothRedirect(`../../res/html/lobby.html?lobby=${appState.currentLobby}&host=true`);
 
     //window.location.href = 'lobby.html';
