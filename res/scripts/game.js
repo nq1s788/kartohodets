@@ -6,7 +6,7 @@ const game = {
     ansPin: null,
     ansLoc: null,
     line: null,
-    pin2d: false
+    pin2d: false,
 };
 function smoothRedirect(url) {
     const fade = document.getElementById('fade');
@@ -141,6 +141,7 @@ function resultGame() {
 
     let distance = google.maps.geometry.spherical.computeDistanceBetween(game.ansLoc, game.userMarker.position);
     // отправить км distance *10 и откруглить 
+    sendDistance(distance);
     document.getElementById("frase").textContent = frase(distance / 1000)
     appState.score += scoreFromDistance(distance / 1000)
     appState.games++;
@@ -157,6 +158,28 @@ function resultGame() {
 
 
     showGameUI('next');
+}
+
+async function sendDistance(variable) {
+  try {
+    const payload = Math.trunc(variable * 10);
+    const response = await fetch('/api/soloResults', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'email': appState.user
+      },
+      // Отправляем как поле объекта
+      body: JSON.stringify({ value: payload }) 
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+  } catch (error) {
+    console.error('Ошибка при отправке результатов:', error);
+  }
 }
 
 function resetGame() {
