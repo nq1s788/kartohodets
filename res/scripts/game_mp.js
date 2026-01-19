@@ -35,21 +35,16 @@ let socket = null;
 const WS_URL = `ws://localhost:8000/ws/${lobbyId}`; // Адрес вебсокета
 
 function connectWebSocket() {
-    const token = localStorage.getItem('kartohodets_token');
-    // Передаем токен при подключении (в реале может быть через subprotocols или query params)
-    socket = new WebSocket(`${WS_URL}?token=${token}`);
+    //аутентификация
+    socket = new WebSocket(`${WS_URL}?email=${appState.user}`);
 
     socket.onopen = () => {
-        console.log("WS соединение установлено");
+        console.log("WS Game connection established");
     };
-
+    
     socket.onmessage = (event) => {
         const msg = JSON.parse(event.data);
         handleServerMessage(msg);
-    };
-
-    socket.onclose = () => {
-        alert("Соединение потеряно");
     };
 }
 
@@ -59,19 +54,34 @@ function handleServerMessage(msg) {
     switch (msg.type) {
         case 'pano_id':
             game.panoId = msg.pano_id;
+            // Инициируем загрузку панорамы для игрока
+            const svService = new google.maps.StreetViewService();
+            svService.getPanorama({ pano: game.panoId }, (data, status) => {
+                if (status === google.maps.StreetViewStatus.OK) {
+                    game.ansLoc = data.location.latLng;
+                    game.streetView.setPosition(game.ansLoc);
+                    showGameUI('guess');
+                }
+            });
             break;
 
-        case 'firstAns':
-            game.firstAns = true;
-            startTimer()
+        case 'first_ans':
+            // startTimer(game_mp.js) получить сигнал кто-то ответил {type: first_ans}
+            if (!game.firstAns) { // Если мы еще не запустили таймер сами
+                console.log("Кто-то ответил первым, запускаем таймер");
+                startTimer();
+            }
             break;
 
         case 'round_result':
-            // Раунд закончен, показываем результаты всех
+            // type: ‘round_result’, results: [ {name, coord, ...}, ... ]
+            // Сохраняем/отображаем результаты
             resultGame(msg.results);
             break;
+
         case 'game_reset':
             resetGame();
+            break;
     }
 }
 
@@ -162,12 +172,13 @@ function attachUIEvents() {
 
     document.getElementById("guess").addEventListener("click", clickGuess);
     document.getElementById("next").addEventListener("click", () => {
-        //надо отправить что хост нажал ресет
-        socket.send(JSON.stringify({ type: 'game_reset', currentLobby: +appState.lobbyGames }));
-
-        resetGame()
-    }
-    );
+    //хост отправляет { type: 'game_reset', currentLobby: +appState.lobbyGames }
+    socket.send(JSON.stringify({ 
+        type: 'game_reset', 
+        currentLobby: +appState.lobbyGames 
+    }));
+    resetGame(); 
+    });
 
     const map = document.getElementById("map");
 
@@ -188,44 +199,31 @@ function updateStreetView() {
                 game.ansLoc = data.location.latLng;
                 game.streetView.setPosition(game.ansLoc);
                 showGameUI('guess');
-                console.log('нашлась панорама', data.location.pano)
-                //отправить на сервер data.location.pano
+                
+                //хост отправляет pano_id
                 socket.send(JSON.stringify({
                     type: 'pano_id',
                     pano_id: data.location.pano,
-                    currentLobby: +appState.currentLobby
+                    currentLobby: appState.currentLobby
                 }));
             } else {
-                console.log("нет панорамы");
-                updateStreetView();
+                updateStreetView(); //если панорама не найдена
             }
         });
-    }
-    else {
-        //получили panoId
-        game.panoId = 'IzDel64coyePHXUADioa8A' //ЗАГЛУШКА
-        svService.getPanorama({ pano: game.panoId }, (data, status) => {
-            if (status === google.maps.StreetViewStatus.OK) {
-                game.ansLoc = data.location.latLng;
-                game.streetView.setPosition(game.ansLoc);
-                showGameUI('guess');
-                console.log('нашлась панорама', data.location.pano)
-            } else {
-                console.log("нет панорамы");
-                updateStreetView();
-            }
-        });
-    }
+    } 
 }
 
 function clickGuess() {
     game.userMarker.gmpDraggable = false;
-
+    // Если таймер еще не запущен
     if (!game.firstAns) {
         game.firstAns = true;
-        //отправить сообщение на сервер запустить таймеры других игроков
-        socket.send(JSON.stringify({ type: 'first_ans', currentLobby: +appState.lobbyGames }));
-        startTimer()
+        //отправляем first_ans {type: first_ans, currentLobby:число}
+        socket.send(JSON.stringify({ 
+            type: 'first_ans', 
+            currentLobby: +appState.lobbyGames
+        }));
+        startTimer();
     }
     showGameUI('wait');
 }
