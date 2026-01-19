@@ -11,7 +11,9 @@ class RoomService:
 
     @staticmethod
     def get_empty_id(db: Session):
-        return db.query(Room).count()
+        x = db.query(Room).count()
+        x = x * (10 ** (6 - len(str(x))))
+        return x % 1000000
 
     @staticmethod
     def create_room(db: Session, host_email:str):
