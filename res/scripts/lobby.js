@@ -90,7 +90,7 @@ if (appState.isHost) {
     // Эмуляция (так как сокеты полностью будут в res/scripts/game_mp.js, здесь просто заглушка):
     setTimeout(() => {
         smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`)
-    }, 2000);
+    }, 5000);
 
     // Примечание: В реальном проекте здесь уже должно быть подключение к сокету
     // для обновления списка игроков в лобби.
@@ -101,8 +101,8 @@ document.getElementById('btn-leave-lobby').addEventListener('click', () => {
     // Запрос: POST /api/lobby/leave
     appState.currentLobby = null;
     appState.isHost = false;
-    appState.lobbyGames = null;
-    appState.lobbyScore = null;
+    appState.lobbyGames = 1;
+    appState.lobbyScore = 0;
 
     localStorage.setItem('appState', JSON.stringify(appState));
     localStorage.setItem('uiState', 'room-enter-screen');

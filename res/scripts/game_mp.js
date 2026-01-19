@@ -475,12 +475,12 @@ function debugOtherAnsFirst() {
 
 function debugPlayersRes() {
     let playersResults = [
-        { name: "qq2345", coord: getRandomCoords(), temp_score: 0 },
-        { name: "smellydog356", coord: getRandomCoords(), temp_score: 0 },
-        { name: "mclovin", coord: getRandomCoords(), temp_score: 0 },
-        { name: "kristiana_F", coord: getRandomCoords(), temp_score: 0 },
-        { name: "ivan_gamaz", coord: getRandomCoords(), temp_score: 0 },
-        { name: "ribka_pickmi", coord: getRandomCoords(), temp_score: 0 }
+        { name: "qq2345", coord: getRandomCoords(), temp_score: 666 },
+        { name: "smellydog356", coord: getRandomCoords(), temp_score: 20 },
+        { name: "mclovin", coord: getRandomCoords(), temp_score: 52 },
+        { name: "kristiana_F", coord: getRandomCoords(), temp_score: 120 },
+        { name: "ivan_gamaz", coord: getRandomCoords(), temp_score: 67 },
+        { name: "ribka_pickmi", coord: getRandomCoords(), temp_score: 17 }
     ]
     playersResults.push(_myRes);
     console.log(playersResults)
