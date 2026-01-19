@@ -11,7 +11,7 @@ class UserService:
 
     @staticmethod
     def get_user_by_email(db: Session, email: str):
-        return db.query(User).filter(User.email == email + '@gmail.com').first()
+        return db.query(User).filter(User.email == email).first()
 
     @staticmethod
     def get_empty_id(db: Session):
