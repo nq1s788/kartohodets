@@ -63,7 +63,7 @@ function initGoogleLogin() {
     // Инициализация кнопки Google Auth (GIS)
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
-        callback: handleGoogleResponse
+        callback: handleCredentialResponse//handleGoogleResponse
     });
     google.accounts.id.renderButton(
         document.getElementById("google-btn"),
