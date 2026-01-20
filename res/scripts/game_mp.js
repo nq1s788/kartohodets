@@ -22,12 +22,16 @@ let appState = JSON.parse(localStorage.getItem('appState'));
 let phrases = null;
 
 const PLACE_COLORS = [
-    '#6abb8f',
-    '#789ab7',
-    '#c8a3f5',
-    '#b77894',
-    '#b78878',
-    '#b7af78'
+    '#a3f5c8',
+    '#7fd9f5',
+    '#8abcf5',
+    '#8f98ff',
+    '#dc8fff',
+    '#d06fd6',
+    '#d46499',
+    '#d46464',
+    '#c0545a',
+    '#a43838'
 ];
 
 // сокет
@@ -204,7 +208,7 @@ function updateStreetView() {
             }
         });
     }
-    else{
+    else {
         /*game.panoId='umcDun81PnfGiw05xxrTOA';
         updateStreetViewPlayer()*/
     }
@@ -259,7 +263,7 @@ function startTimer() { //вызывается когда получили со�
     }, 1000);
 }
 
-let _myRes = { name: appState.user, temp_score:17};
+let _myRes = { name: appState.user, temp_score: 17 };
 function myResult() {
     const pos = game.userMarker.position;
 
