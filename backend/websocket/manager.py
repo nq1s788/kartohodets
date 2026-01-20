@@ -55,7 +55,7 @@ class ConnectionManager:
     async def handle_my_res(self, lobby_code: int, email: str, lat: int, lng: int, distance: int):
         UserService.update_coord(db, email, lat, lng)
         UserService.update_temp_score(db, email, distance)
-        UserService.update_and_return_elo(db, email, distance, false)
+        UserService.update_and_return_elo(db, email, distance)
 
         results = RoomService.get_all_users_with_coord_and_tempelo(db, lobby_code)
         message = {
