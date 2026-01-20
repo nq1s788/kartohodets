@@ -14,7 +14,7 @@ class RoomService:
     @staticmethod
     def get_empty_id(db: Session):
         x = randint(100000, 999999)
-        while db.query(Room).filter(Room.id == x).first() is None:
+        while (db.query(Room).filter(Room.id == x).first() is not None):
             x = randint(100000, 999999)
         return x
 
