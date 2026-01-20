@@ -13,9 +13,13 @@ class ConnectionManager:
     def __init__(self):
         # lobby_code → список WebSocket соединений
         self.active_lobbies: Dict[int, List[WebSocket]] = {}
-    async def connect_to_lobby(self, websocket: WebSocket, lobby_code: int, email: str):
-        await websocket.accept()
+    async def connect_to_lobby(self, websocket: WebSocket, lobby_code: int, email: str, db=None):
+
+        if lobby_code not in self.active_lobbies:
+            self.active_lobbies[lobby_code] = []
+            print(f"Created room {lobby_code} in manager")
         self.active_lobbies[lobby_code].append(websocket)
+        print(self.active_lobbies)
 
         # Уведомляем всех в лобби о новом игроке
         await self.broadcast_to_lobby(lobby_code, {
@@ -42,7 +46,7 @@ class ConnectionManager:
     async def handle_start_game(self, lobby_code: int):
         await self.broadcast_to_lobby(lobby_code, {"game_started": true})
 
-    async def handle_pano_id(self, lobby_code: int, pano_id: int, db: Session = Depends(get_db)):
+    async def handle_pano_id(self, lobby_code: int, pano_id: int):
        RoomService.update_pan_id(db, lobby_code, pano_id)
        await self.broadcast_to_lobby(lobby_code, {
            "type": 'pano_id',

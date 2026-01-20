@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends
 from sqlalchemy.orm import Session
-from backend.models.database import get_db
+from backend.models.database import get_db, SessionLocal
 from backend.services.room_service import RoomService
 from . import manager
 from .manager import connection_manager
@@ -13,10 +13,11 @@ router = APIRouter()
 async def lobby_websocket(
         websocket: WebSocket,
         lobby_code: int,
-        email: str = Query(...),  # email из параметров запроса
-        db: Session = Depends(get_db)
+        email: str = Query(...)  # email из параметров запроса
 ):
     """WebSocket для взаимодействия в лобби"""
+    await websocket.accept()
+    db = SessionLocal()
 
     # Проверяем что лобби существует
     room = RoomService.get_room_by_id(db, lobby_code)
@@ -34,7 +35,8 @@ async def lobby_websocket(
     await connection_manager.connect_to_lobby(
         websocket=websocket,
         lobby_code=lobby_code,
-        email=email
+        email=email,
+        db=db
     )
 
     try:
