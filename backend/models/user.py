@@ -14,6 +14,5 @@ class User(Base):
     sum_km = Column(Integer)
     is_ready = Column(Boolean)
     temp_elo = Column(Integer)
-    temp_km = Column(Integer)
 
 
