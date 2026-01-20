@@ -32,7 +32,7 @@ class UserService:
         leaderboard = []
         for user in users:
             leaderboard.append({
-                'name': user.email[:user.email.find('@')],
+                'name': user.email,
                 'score': user.elo,
             })
         return {'user': stats, 'top': leaderboard}

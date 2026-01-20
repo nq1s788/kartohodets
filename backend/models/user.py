@@ -8,7 +8,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     email = Column(String, nullable=False, unique=True)
-    elo = Column(Integer)
+    elo = Column(Integer, default=0)
     matches = Column(Integer)
     coord = Column(String)
     room_id = Column(Integer, ForeignKey("rooms.id"))

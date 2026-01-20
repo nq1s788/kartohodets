@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import desc
+from random import randint
 
 from backend.models.room import Room
 from backend.models.user import User
@@ -12,9 +13,10 @@ class RoomService:
 
     @staticmethod
     def get_empty_id(db: Session):
-        x = db.query(Room).count()
-        x = x * (10 ** (6 - len(str(x))))
-        return x % 1000000
+        x = randint(100000, 999999)
+        while db.query(Room).filter(Room.id == x).first() is None:
+            x = randint(100000, 999999)
+        return x
 
     @staticmethod
     def create_room(db: Session, host_email:str):
@@ -53,7 +55,7 @@ class RoomService:
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
         for user in users:
-            results.append({'name': user.email[:user.email.find('@')],
+            results.append({'name': user.email,
                             'coord': tuple(map(float, user.coord.split()))})
         return results
 
@@ -63,7 +65,7 @@ class RoomService:
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
         for user in users:
-            results.append({'name': user.email[:user.email.find('@')],
+            results.append({'name': user.email,
                             'coord': tuple(map(float, user.coord.split())),
                             'temp_score': user.temp_elo})
         return results

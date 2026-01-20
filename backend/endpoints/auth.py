@@ -27,6 +27,7 @@ async def solo_game(distance: int, email: str, db: Session = Depends(get_db)):
 @router.post("/create/lobby")
 async def create_lobby(email: str, db: Session = Depends(get_db)):
     room = RoomService.create_room(db, email)
+    UserService.add_user_to_room(db, email, room.id)
     return {
         "lobbyCode": room.id
     }
