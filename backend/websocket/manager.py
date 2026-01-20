@@ -65,7 +65,7 @@ class ConnectionManager:
                 self.active_lobbies[lobby_code].remove(connection)
 
     async def handle_start_game(self, lobby_code: int):
-        await self.broadcast_to_lobby(lobby_code, {"game_started": True})
+        await self.broadcast_to_lobby(lobby_code, {"type": 'game_started'})
 
     async def handle_pano_id(self, lobby_code: int, pano_id: int):
        RoomService.update_pan_id(db, lobby_code, pano_id)
