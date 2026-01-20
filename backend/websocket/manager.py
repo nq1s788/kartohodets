@@ -32,6 +32,7 @@ class ConnectionManager:
             }
         )
         players = RoomService.get_all_users(db, lobby_code)
+        print(players)
         await asyncio.sleep(0.1)
         await self.broadcast_to_lobby(lobby_code,{
             "type": "init_lobby",
