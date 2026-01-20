@@ -113,7 +113,7 @@ function polarToDecar(rad, d, mx) {
 const startBtn = document.getElementById('btn-start-game');
 const guestMsg = document.getElementById('guest-msg');
 
-addMarker(appState.user)
+//addMarker(appState.user)
 
 if (appState.isHost) {
     startBtn.style.display = 'block';
