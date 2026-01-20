@@ -7,5 +7,5 @@ class Room(Base):
 
     id = Column(Integer, primary_key=True, notnull=True)
     pan_id = Column(String)
-    host_id = Column(Integer, foreign_key="Users.id")
+    host_email = Column(String, foreign_key="Users.email")
 
