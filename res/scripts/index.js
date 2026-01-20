@@ -204,7 +204,7 @@ async function joinLobby() {
     });
     console.log(code)
     try {
-        const response = await fetch(`${API_BASE_URL}/api/lobby/lobby/${code}`, {
+        const response = await fetch(`${API_BASE_URL}/api/lobby/${code}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
