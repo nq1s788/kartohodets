@@ -1,2 +1,6 @@
 node_modules/
 my_backend.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
