@@ -31,7 +31,7 @@ class RoomService:
 
 
     @staticmethod
-    def update_pan_id(db: Session, room_id: int, new_pan_id: int):
+    def update_pan_id(db: Session, room_id: int, new_pan_id: str):
         room = RoomService.get_room_by_id(db, room_id)
         if not room:
             return None
