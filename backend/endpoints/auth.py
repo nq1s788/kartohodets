@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/email")
 async def create_session(email: str, db: Session = Depends(get_db)):
     if not UserService.get_user_by_email(db, email):
         UserService.create_user(db, email)
