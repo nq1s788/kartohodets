@@ -20,7 +20,7 @@ class RoomService:
         host = User.get_user_by_email(db, host_email)
         if not host:
             return None
-        room = Room(id = Room.get_empty_id(db), host_email = host_email)
+        room = Room(id = RoomService.get_empty_id(db), host_email = host_email)
         db.add(room)
         db.commit()
         db.refresh(room)
@@ -29,7 +29,7 @@ class RoomService:
 
     @staticmethod
     def update_pan_id(db: Session, room_id: int, new_pan_id: int):
-        room = Room.get_room_by_id(db, room_id)
+        room = RoomService.get_room_by_id(db, room_id)
         if not room:
             return None
         room.pan_id = new_pan_id
@@ -39,7 +39,7 @@ class RoomService:
 
     @staticmethod
     def get_all_users(db: Session, room_id: int):
-        room = Room.get_room_by_id(db, room_id)
+        room = RoomService.get_room_by_id(db, room_id)
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
         for user in users:
@@ -48,7 +48,7 @@ class RoomService:
 
     @staticmethod
     def get_all_users_with_coord(db: Session, room_id: int):
-        room = Room.get_room_by_id(db, room_id)
+        room = RoomService.get_room_by_id(db, room_id)
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
         for user in users:
@@ -58,7 +58,7 @@ class RoomService:
 
     @staticmethod
     def get_all_users_with_coord_and_tempelo(db: Session, room_id: int):
-        room = Room.get_room_by_id(db, room_id)
+        room = RoomService.get_room_by_id(db, room_id)
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
         for user in users:

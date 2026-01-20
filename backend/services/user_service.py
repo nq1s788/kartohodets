@@ -19,7 +19,7 @@ class UserService:
 
     @staticmethod
     def get_leaderboard_and_stats(db: Session, email: str):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         users = db.query(User).order_by(desc(User.elo)).all()
@@ -40,7 +40,7 @@ class UserService:
 
     @staticmethod
     def create_user(db: Session, email: str):
-        user = User(email=email, id=User.get_emptyid(db), temp_elo=0, sum_km = 0, matches=0)
+        user = User(email=email, id=UserService.get_empty_id(db), temp_elo=0, sum_km = 0, matches=0)
         db.add(user)
         db.commit()
         db.refresh(user)
@@ -48,7 +48,7 @@ class UserService:
 
     @staticmethod
     def add_user_to_room(db: Session, email: str, room_id: int):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         user.room_id = room_id
@@ -58,7 +58,7 @@ class UserService:
 
     @staticmethod
     def remove_user_from_room(db: Session, email: str):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         user.room_id = null
@@ -68,7 +68,7 @@ class UserService:
 
     @staticmethod
     def update_coord(db: Session, email: str, coord_x: float, coord_y: float ):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         user.coord = str(coord_x) + ' ' + str(coord_y)
@@ -78,7 +78,7 @@ class UserService:
 
     @staticmethod
     def update_temp_score(db: Session, email: str, km: int):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         user.temp_elo += 127420 - km
@@ -88,7 +88,7 @@ class UserService:
 
     @staticmethod
     def zero_temp_score(db: Session, email: str):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         user.temp_elo = 0
@@ -98,21 +98,21 @@ class UserService:
 
     @staticmethod
     def get_coord(db: Session, email: str):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         return map(float, user.coord.split())
 
     @staticmethod
     def get_elo(db: Session, email: str):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         if not user:
             return None
         return user.elo
 
     @staticmethod
     def update_and_return_elo(db: Session, email: str, km: int):
-        user = User.get_user_by_email(db, email)
+        user = UserService.get_user_by_email(db, email)
         user.sum_km += (127420 - km)
         user.matches += 1
         user.elo = user.sum_km / user.matches

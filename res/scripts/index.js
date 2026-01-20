@@ -78,14 +78,16 @@ async function handleCredentialResponse(response) {
     try {
         // 1. Получаем email из токена Google
         const responsePayload = decodeJwtResponse(response.credential);
+        console.log("!!!!!!!!!!!!!!!!!");
         const userEmail = responsePayload.email;
         const username = userEmail.split('@')[0];
+        console.log(userEmail, username);
         // 2. Отправляем email на сервер
-        const apiResponse = await fetch(`/api/email?email=${username}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        const apiResponse = await fetch(`/api/email?email=${encodeURIComponent(username)}`, {
+            method: 'POST'
+            //headers: {
+            //    'Content-Type': 'application/json'
+            //}
         });
 
         // 3. Проверяем ответ сервера
