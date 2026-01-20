@@ -185,7 +185,7 @@ button {
 }
 
 #lobby-code-input::before {
-	content: 'vvedi id komnaty';
+	content: 'enter room id';
 	position: absolute;
 	font-size: 16px;
 	margin-bottom: 57px;

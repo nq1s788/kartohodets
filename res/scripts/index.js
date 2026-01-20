@@ -8,8 +8,8 @@ const appState = JSON.parse(localStorage.getItem('appState'))
     user: 'cool_user',
     currentLobby: null,
     isHost: false,
-    lobbyGames: null,
-    lobbyScore: null,
+    lobbyGames: 1,
+    lobbyScore: 0,
     games: 1,
     score: 0,
 };
@@ -33,6 +33,8 @@ window.addEventListener('load', () => {
 
 
 function smoothRedirect(url) {
+    localStorage.setItem('appState', JSON.stringify(appState));
+
     const fade = document.getElementById('fade');
     fade.classList.add('active');
 
@@ -45,16 +47,11 @@ function smoothRedirect(url) {
 // --- Логика Аутентификации --- хз.. думайте
 
 function checkLocalStorage() {
-    const token = localStorage.getItem('kartohodets_token');
-
+    const token = localStorage.getItem('token');
     if (token) {
-        // Здесь можно добавить валидацию токена через запрос к бэкенду
-        // Запрос: GET /api/validate_token (Header: Authorization: Bearer token)
-        appState.token = token;
-        // Предполагаем, что токен валиден, показываем меню
+        //token = email
+        appState.user = token;
         showScreen('menu-screen');
-        // Загружаем данные пользователя (имя и т.д.)
-        // Запрос: GET /api/user/me
     } else {
         // Токена нет, показываем логин
         initGoogleLogin();
@@ -68,7 +65,7 @@ function initGoogleLogin() {
     // Инициализация кнопки Google Auth (GIS)
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
-        callback: handleGoogleResponse
+        callback: handleCredentialResponse//handleGoogleResponse
     });
     google.accounts.id.renderButton(
         document.getElementById("google-btn"),
@@ -76,24 +73,54 @@ function initGoogleLogin() {
     );
 }
 
-function handleGoogleResponse(response) {
-    // Получаем JWT токен от Google
-    const googleToken = response.credential;
+async function handleCredentialResponse(response) {
+    try {
+        // 1. Получаем email из токена Google
+        const responsePayload = decodeJwtResponse(response.credential);
+        const userEmail = responsePayload.email;
+        const username = userEmail.split('@')[0];
+        // 2. Отправляем email на сервер
+        const apiResponse = await fetch('/api/email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: username })
+        });
 
-    // Отправляем токен на наш бэкенд для верификации и получения сессионного токена
-    // Запрос: POST /api/auth/google { token: googleToken }
-    console.log("Отправка токена на бэкенд:", googleToken);
+        // 3. Проверяем ответ сервера
+        if (apiResponse.ok) {
+            localStorage.setItem('token', username); //пока в токен просто username сохраняем потом поправлю
+            appState.user = username;
+            console.log("Вход выполнен успешно");
+            showScreen('menu-screen');
 
-    // Эмуляция ответа от сервера
-    const serverToken = "mock_server_token_" + Date.now();
-    localStorage.setItem('kartohodets_token', serverToken);
-    appState.token = serverToken;
+        } else {
+            console.error("Ошибка сервера:", apiResponse.status);
+            throw new Error('Server rejected');
+        }
 
-    showScreen('menu-screen');
+    } catch (error) {
+        console.error("Ошибка входа:", error);
+        // Чистим на всякий случай
+        appState.token = null;
+        showScreen('login-screen');
+    }
+}
+
+//расшифровываем гуглотокен
+function decodeJwtResponse(token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
 }
 
 function logout() {
-    localStorage.removeItem('kartohodets_token');
+    localStorage.removeItem('token');
     console.log('logout', localStorage)
     showScreen('login-screen');
 }
@@ -103,42 +130,60 @@ function logout() {
 async function loadLeaderboard() {
     // Запрос: GET /api/leaderboard
     // Ожидаемый ответ: { user_stats: {...}, top_10: [...] }
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/leaderboard`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'email': appState.user
+            }
+        });
 
-    // Эмуляция данных
-    const mockData = {
-        user: { rank: 6, score: 1912.34, accuracy: 63, games: 17 },
-        top: [
-            { name: "qq2345", score: 3524.19 },
-            { name: "smellydog356", score: 3318.83 },
-            { name: "mclovin", score: 3192.58 },
-            { name: "kristiana_F", score: 2523.67 },
-            { name: "ivan_gamaz", score: 2473.49 },
-            { name: "cool_user", score: 1912.34 },
-            { name: "sadkun666", score: 1882.47 },
-            { name: "azalkinmmm", score: 1869.23 },
-            { name: "anna_mrkv", score: 1742.13 },
-            { name: "sweetevelyn", score: 1612.96 },
-        ]
-    };
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const statsScreenData = await response.json();
 
-    // Заполнение UI
-    document.getElementById('stat-rank').innerText = mockData.user.rank;
-    document.getElementById('stat-score').innerText = mockData.user.score;
-    document.getElementById('stat-accuracy').innerText = mockData.user.accuracy + '%';
-    document.getElementById('stat-games').innerText = mockData.user.games;
+        // Заполнение UI
+        if (statsScreenData.user) {
+            document.getElementById('stat-rank').innerText = statsScreenData.user.rank;
+            document.getElementById('stat-score').innerText = statsScreenData.user.score;
+            document.getElementById('stat-accuracy').innerText = statsScreenData.user.accuracy + '%';
+            document.getElementById('stat-games').innerText = statsScreenData.user.games;
+        }
 
-    const body = document.getElementById('leaderboard-body');
-    body.innerHTML = '';
+        const body = document.getElementById('leaderboard-body');
+        body.innerHTML = '';
 
-    mockData.top.forEach((p, i) => {
-        body.innerHTML += `
-    <div class="row ${p.name === appState.user ? 'me' : ''}">
-      <div>${i + 1}. ${p.name}</div>
-      <div class="score">${p.score.toFixed(2)}</div>
-    </div>
-  `;
-    });
+        if (statsScreenData.top && Array.isArray(statsScreenData.top)) {
+            statsScreenData.top.forEach((p, i) => {
+                body.innerHTML += `
+                <div class="row ${(i + 1) == statsScreenData.user.rank ? 'me' : ''}">
+                  <div>${i + 1}. ${p.name}</div>
+                  <div class="score">${Number(p.score).toFixed(2)}</div>
+                </div>`;
+            });
+        }
 
+    } catch (error) {
+        console.error("Ошибка при загрузке лидерборда:", error);
+    }
+    /* Эмуляция данных
+       const mockData = {
+           user: { rank: 6, score: 1912.34, accuracy: 63, games: 17 },
+           top: [
+               { name: "qq2345", score: 3524.19 },
+               { name: "smellydog356", score: 3318.83 },
+               { name: "mclovin", score: 3192.58 },
+               { name: "kristiana_F", score: 2523.67 },
+               { name: "ivan_gamaz", score: 2473.49 },
+               { name: "cool_user", score: 1912.34 },
+               { name: "sadkun666", score: 1882.47 },
+               { name: "azalkinmmm", score: 1869.23 },
+               { name: "anna_mrkv", score: 1742.13 },
+               { name: "sweetevelyn", score: 1612.96 },
+           ]
+       };*/ 
 }
 
 // --- Логика Мультиплеера (Лобби) ---
@@ -158,35 +203,78 @@ async function joinLobby() {
         code += x.value;
     });
     console.log(code)
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/lobby/lobby/${code}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'email': appState.user
+            }
+        });
+        if (response.ok) {
+            appState.currentLobby = code
+        }
+
+    } catch (error) {
+        console.error("Ошибка при проверке кода:", error);
+
+    }
 
     // Запрос: GET /api/lobby/{code} - проверка существования
     // Если ОК:
     console.log("Вход в лобби:", code);
-    appState.currentLobby = code;
+    appState.currentLobby = code//delete
+    console.log(appState.currentLobby)
     appState.isHost = false;
 
     renderLobbyScreen();
 }
 
 async function createLobby() {
-    // Запрос: POST /api/lobby/create
-    // Ожидаемый ответ: { lobby_code: "123456" }
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/lobby/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'email': appState.user
+            }
+        });
 
-    const newCode = Math.floor(100000 + Math.random() * 900000); // Эмуляция
-    console.log("Создано лобби:", newCode);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-    appState.currentLobby = newCode;
-    appState.isHost = true;
+        const data = await response.json();
+        const lobbyCode = data.lobbyCode;
+        if (!lobbyCode) {
+            throw new Error('no lobbyCode');
+        }
 
-    renderLobbyScreen();
+        appState.isHost = true;
+        appState.currentLobby = lobbyCode;
+
+        renderLobbyScreen();
+
+    } catch (error) {
+        console.error("Ошибка при создании лобби:", error);
+        /*appState.isHost = true;
+        appState.currentLobby = 123123;*/
+
+        renderLobbyScreen();
+    }
 }
 
-function renderLobbyScreen() {
-    localStorage.setItem('appState', JSON.stringify(appState));
+
+function renderLobbyScreen() { //renderLobbyScreen(lobbyId)
+    //const newCode = Math.floor(100000 + Math.random() * 900000); // Эмуляция
+    //console.log("Создано лобби:", newCode);
+    //newCode менять на lobbyId
+    //appState.currentLobby = newCode;
     smoothRedirect('../../res/html/lobby.html');
+    //    smoothRedirect(`../../res/html/lobby.html?lobby=${appState.currentLobby}&host=true`);
+
     //window.location.href = 'lobby.html';
 }
-
 // --- Утилиты UI ---
 
 function showScreen(screenId) {
@@ -199,7 +287,7 @@ function showScreen(screenId) {
 }
 
 function setupEventListeners() {
-    document.getElementById("google-btn").addEventListener('click', () => {
+    document.getElementById("google-btn").addEventListener('click', () => { //delete
         appState.user = 'player';
         const serverToken = "mock_server_token_" + Date.now();
         localStorage.setItem('kartohodets_token', serverToken);
@@ -209,6 +297,8 @@ function setupEventListeners() {
 
     // Кнопки меню
     document.getElementById('btn-solo').addEventListener('click', () => {
+        appState.games = 1;
+        appState.score = 0;
         smoothRedirect('../../res/html/game.html')
         //window.location.href = 'game.html'; // Переход на соло игру
     });

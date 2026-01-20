@@ -1,85 +1,85 @@
 {
   "1": [
-    "eto tvoy dom?",
-    "ty seychas smotrish v okno?",
-    "tut uzhe bez kommentariev",
-    "ladno, my ponyali",
-    "slishkom tochno",
-    "chistoe masterstvo"
+    "is this your house?",
+    "are you looking out the window right now?",
+    "no comments needed here",
+    "okay, we get it",
+    "way too accurate",
+    "pure skill"
   ],
   "10": [
-    "ty realno byl tut",
-    "dazhe vegany khavayut eto myaso",
-    "chuvstvuetsya opyt",
-    "eto uroven vyshe srednego"
+    "you’ve definitely been here",
+    "even vegans would eat this meat",
+    "experience shows",
+    "that’s above average"
   ],
   "50": [
-    "ochen tochno",
-    "nu vsyo, palishsya",
-    "mestnyy zhitel",
-    "skazhi chestno - ty byl zdes",
-    "ty yavna znaesh rayon",
-    "pochti idealno"
+    "very accurate",
+    "alright, you’re giving yourself away",
+    "local resident",
+    "be honest — you’ve been here",
+    "you clearly know this area",
+    "almost perfect"
   ],
   "100": [
-    "tak ty tut yavna byval",
-    "chuvstvuesh",
-    "pochti popal",
-    "chut-chut ne dozhall",
-    "logika byla absolyutno vernaya",
-    "progress zameten"
+    "you’ve definitely been here before",
+    "you can feel it",
+    "almost nailed it",
+    "just a little more",
+    "the logic was absolutely right",
+    "progress is obvious"
   ],
   "500": [
-    "eto bylo blizko",
-    "eshche chut-chut",
-    "dostoyno",
-    "ruka drognula",
-    "khorosho shel",
-    "bez suety, po delu",
-    "khoroshaya rabota"
+    "that was close",
+    "just a bit more",
+    "solid",
+    "your hand slipped",
+    "you were on the right track",
+    "calm and precise",
+    "good job"
   ],
   "1000": [
-    "gde-to ryadom, chestno",
-    "neplokho, sovsem neplokho",
-    "logika est",
-    "vpolne dostoyno",
-    "neplokhoe prostranstvennoe myshlenie"
+    "somewhere nearby, honestly",
+    "not bad, really not bad",
+    "there is logic here",
+    "totally respectable",
+    "good spatial awareness"
   ],
   "2000": [
-    "region tot",
-    "ty byl na pravilnom puti",
-    "eto uzhe ne palcem v nebo",
-    "khoroshaya popytka",
-    "ty nachal chitat kartu"
+    "right region",
+    "you were on the right path",
+    "not a random guess anymore",
+    "good attempt",
+    "you’re starting to read the map"
   ],
   "5000": [
-    "kontinent ugadal, i eto vazhno",
-    "v masshtabakh Zemli - normalno",
-    "ty myslil globalno",
-    "ne tochno, no logika byla",
-    "strategicheski verno",
-    "ty ne poteryal kontekst"
+    "you got the continent — that matters",
+    "on a global scale, that’s fine",
+    "you were thinking big",
+    "not precise, but logical",
+    "strategically correct",
+    "you didn’t lose context"
   ],
   "10000": [
-    "zato planeta tochnaya",
-    "tak nachinayut vse",
-    "eto chast protsessa",
-    "ne toropis, ty uchishsya",
-    "oshibki tut - norma",
-    "ne nado ugadyvat idealno",
-    "ty smotrel shire",
-    "vazhen ne tolko rezul'tat",
-    "eto tolko nachalo",
-    "dalshe budet interesnee",
-    "daleko...",
-    "spokoyno, vse idet kak nado"
+    "at least the planet was right",
+    "everyone starts like this",
+    "this is part of the process",
+    "take your time, you’re learning",
+    "mistakes are normal here",
+    "you don’t have to be perfect",
+    "you were thinking broader",
+    "it’s not just about the result",
+    "this is just the beginning",
+    "it gets more interesting from here",
+    "far away…",
+    "relax, everything’s going as it should"
   ],
   "+": [
-    "nu, planeta ta zhe - uzhe uspekh",
-    "s pervogo raza v takuyu tochku popast slozhno",
-    "dalshe budet luchshe",
-    "eto byl razogrev, ne schitaetsya",
-    "sleduyushchiy raund budet luchshe",
-    "Ne sdavaysya, dalshe interesnee"
+    "same planet — already a win",
+    "hitting that spot on the first try is hard",
+    "it’ll get better",
+    "that was just a warm-up",
+    "next round will be better",
+    "don’t give up — it gets more interesting"
   ]
 }

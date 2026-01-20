@@ -24,6 +24,56 @@ document.getElementById('lobby-code-display').innerText = appState.currentLobby;
 
 const earth = document.getElementById('players-markers');
 
+let socket = null;
+const WS_URL = `ws://localhost:8000/ws/${appState.currentLobby}`; //адрес вебсокета
+
+function connectLobbyWebSocket() {
+    socket = new WebSocket(WS_URL);
+
+    socket.onopen = () => {
+        console.log("Connected to Lobby WS");
+        socket.send(JSON.stringify({
+                type: 'player_added',
+                username: appState.user,
+                lobby_code: appState.currentLobby
+            }));
+    };
+
+    socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleLobbyMessage(msg);
+    };
+
+    socket.onclose = () => {
+        console.log("Lobby WS closed");
+    };
+}
+
+function handleLobbyMessage(msg) {
+    switch (msg.type) {
+        case 'PlayerAdded':
+            //get notify_msg = { "type": "PlayerAdded", "text": "AnnaMarkova" }
+            console.log("Новый игрок:", msg.text);
+            addMarker(msg.text);
+            break;
+
+        case 'game_started':
+            //получили game_started: true -- редирект
+            console.log("Игра началась");
+            smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`);
+            break;
+        //можно будет добавить чтоб предыдущих людей прорисовывать
+        case 'init_lobby':
+       // Сервер присылает массив имен: { type: 'init_lobby', players: ['player5', 'player2'] }
+            msg.players.forEach(playerName => {
+            addMarker(playerName); // Рисуем всех, кто уже был
+            });
+            break;
+    }
+}
+
+connectLobbyWebSocket();
+
 function addMarker(playerName) {
     const marker = document.createElement('div')
 
@@ -59,49 +109,43 @@ function polarToDecar(rad, d, mx) {
 const startBtn = document.getElementById('btn-start-game');
 const guestMsg = document.getElementById('guest-msg');
 
-// Эмуляция данных
-const mockData = {
-    players: ['rimeifutamo', 'nq1s788', 'anya_mrkv3']
-};
-
 addMarker(appState.user)
-mockData.players.forEach(addMarker)
 
 if (appState.isHost) {
     startBtn.style.display = 'block';
     guestMsg.style.display = 'none';
 
-    // Навешиваем обработчик старта игры только для хоста
     startBtn.onclick = () => {
-        // Запрос: POST /api/lobby/{code}/start
-        // Или отправка сообщения в сокет
-        console.log("Хост запустил игру");
-        // Редирект в игру (передаем ID лобби и роль)
-        smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}&host=true`)
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                type: 'start_game',
+                username: appState.user
+            }));
+            // smoothRedirect вызывается в handleLobbyMessage когда сервер ответит всем game_started
+        } else {
+            console.error("Socket not ready");
+        }
+        //smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}&host=true`)
+
     };
 } else {
     startBtn.style.display = 'none';
     guestMsg.style.display = 'block';
 
-    // Гость должен слушать сокет на предмет начала игры.
-    // В рамках этого файла (menu.js) мы предполагаем, что как только
-    // придет сигнал "game_started", мы делаем редирект.
-    // Эмуляция (так как сокеты полностью будут в res/scripts/game_mp.js, здесь просто заглушка):
+    /* Эмуляция:
     setTimeout(() => {
         smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`)
-    }, 2000);
-
-    // Примечание: В реальном проекте здесь уже должно быть подключение к сокету
-    // для обновления списка игроков в лобби.
+    }, 5000);
+    
+    */
 }
-
-
+//тут я запрос пока не добави
 document.getElementById('btn-leave-lobby').addEventListener('click', () => {
     // Запрос: POST /api/lobby/leave
     appState.currentLobby = null;
     appState.isHost = false;
-    appState.lobbyGames = null;
-    appState.lobbyScore = null;
+    appState.lobbyGames = 1;
+    appState.lobbyScore = 0;
 
     localStorage.setItem('appState', JSON.stringify(appState));
     localStorage.setItem('uiState', 'room-enter-screen');
