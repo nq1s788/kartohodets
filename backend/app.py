@@ -27,7 +27,7 @@ try:
     from websocket import room_ws
 
     app.include_router(auth.router, prefix="/api")
-    app.include_router(room_ws.router, prefix="/ws")
+    app.include_router(room_ws.router)
     print("✅ API and WebSocket routes loaded")
 except Exception as e:
     print(f"❌ Failed to load routes: {e}")
