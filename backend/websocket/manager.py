@@ -15,6 +15,7 @@ class ConnectionManager:
         # lobby_code → список WebSocket соединений
         self.active_lobbies: Dict[int, List[WebSocket]] = {}
     async def connect_to_lobby(self, websocket: WebSocket, lobby_code: int, email: str, db=None):
+        UserService.add_user_to_room(db, email, lobby_code)
 
         if lobby_code not in self.active_lobbies:
             self.active_lobbies[lobby_code] = []
