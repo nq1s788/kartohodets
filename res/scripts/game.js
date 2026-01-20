@@ -1,3 +1,5 @@
+const API_BASE_URL = "http://localhost:8000";
+
 const game = {
     map: null,
     streetView: null,
@@ -162,15 +164,12 @@ function resultGame() {
 
 async function sendDistance(variable) {
   try {
-    const payload = Math.trunc(variable * 10);
-    const response = await fetch('/api/soloResults', {
+    const payload = Math.trunc(variable / 100);
+    const response = await fetch(`/api/soloResults?email=${appState.user}&distance=${payload}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'email': appState.user
-      },
-      // Отправляем как поле объекта
-      body: JSON.stringify({ value: payload }) 
+        'Content-Type': 'application/json'
+      }
     });
 
     if (!response.ok) {

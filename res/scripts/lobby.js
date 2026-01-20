@@ -25,9 +25,13 @@ document.getElementById('lobby-code-display').innerText = appState.currentLobby;
 const earth = document.getElementById('players-markers');
 
 let socket = null;
-const WS_URL = `ws://localhost:8000/ws/${appState.currentLobby}`; //адрес вебсокета
+const WS_URL = `ws://localhost:8000/ws/lobby/${appState.currentLobby}?email=${appState.user}`; //адрес вебсокета
 
 function connectLobbyWebSocket() {
+    if (!appState.currentLobby) {
+        console.error("Lobby ID is missing/null, cannot connect WS");
+        return;
+    }
     socket = new WebSocket(WS_URL);
 
     socket.onopen = () => {

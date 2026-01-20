@@ -85,9 +85,6 @@ async function handleCredentialResponse(response) {
         // 2. Отправляем email на сервер
         const apiResponse = await fetch(`/api/email?email=${encodeURIComponent(username)}`, {
             method: 'POST'
-            //headers: {
-            //    'Content-Type': 'application/json'
-            //}
         });
 
         // 3. Проверяем ответ сервера
@@ -134,11 +131,10 @@ async function loadLeaderboard() {
     // Запрос: GET /api/leaderboard
     // Ожидаемый ответ: { user_stats: {...}, top_10: [...] }
     try {
-        const response = await fetch(`${API_BASE_URL}/api/leaderboard`, {
+        const response = await fetch(`${API_BASE_URL}/api/leaderboard?email=${appState.user}`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'email': appState.user
+                'Content-Type': 'application/json'
             }
         });
 
@@ -151,7 +147,6 @@ async function loadLeaderboard() {
         if (statsScreenData.user) {
             document.getElementById('stat-rank').innerText = statsScreenData.user.rank;
             document.getElementById('stat-score').innerText = statsScreenData.user.score;
-            document.getElementById('stat-accuracy').innerText = statsScreenData.user.accuracy + '%';
             document.getElementById('stat-games').innerText = statsScreenData.user.games;
         }
 
@@ -207,15 +202,17 @@ async function joinLobby() {
     });
     console.log(code)
     try {
-        const response = await fetch(`${API_BASE_URL}/api/lobby/${code}`, {
-            method: 'GET',
+        const response = await fetch(`${API_BASE_URL}/api/lobby/${code}?email=${appState.user}`, {
+            method: 'POST', 
             headers: {
-                'Content-Type': 'application/json',
-                'email': appState.user
+                'Content-Type': 'application/json'
             }
         });
         if (response.ok) {
-            appState.currentLobby = code
+            appState.currentLobby = code;
+            localStorage.setItem('appState', JSON.stringify(appState));
+        }   else {
+             console.error("Server returned:", response.status);
         }
 
     } catch (error) {
@@ -226,7 +223,6 @@ async function joinLobby() {
     // Запрос: GET /api/lobby/{code} - проверка существования
     // Если ОК:
     console.log("Вход в лобби:", code);
-    appState.currentLobby = code//delete
     console.log(appState.currentLobby)
     appState.isHost = false;
 
@@ -235,11 +231,10 @@ async function joinLobby() {
 
 async function createLobby() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/lobby/create`, {
+        const response = await fetch(`${API_BASE_URL}/api/create/lobby?email=${appState.user}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'email': appState.user
+                'Content-Type': 'application/json'
             }
         });
 
@@ -255,7 +250,7 @@ async function createLobby() {
 
         appState.isHost = true;
         appState.currentLobby = lobbyCode;
-
+        localStorage.setItem('appState', JSON.stringify(appState));
         renderLobbyScreen();
 
     } catch (error) {
@@ -263,7 +258,7 @@ async function createLobby() {
         /*appState.isHost = true;
         appState.currentLobby = 123123;*/
 
-        renderLobbyScreen();
+        //renderLobbyScreen();
     }
 }
 
