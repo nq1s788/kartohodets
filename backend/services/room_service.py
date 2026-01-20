@@ -3,6 +3,7 @@ from sqlalchemy.sql.expression import desc
 
 from backend.models.room import Room
 from backend.models.user import User
+from backend.services.user_service import UserService
 
 class RoomService:
     @staticmethod
@@ -17,7 +18,7 @@ class RoomService:
 
     @staticmethod
     def create_room(db: Session, host_email:str):
-        host = User.get_user_by_email(db, host_email)
+        host = UserService.get_user_by_email(db, host_email)
         if not host:
             return None
         room = Room(id = RoomService.get_empty_id(db), host_email = host_email)

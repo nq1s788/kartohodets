@@ -24,7 +24,7 @@ async def solo_game(distance: int, email: str, db: Session = Depends(get_db)):
     UserService.update_temp_score(db, email, distance)
     return UserService.update_and_return_elo(db, email, distance)
 
-@router.get("/create/lobby")
+@router.post("/create/lobby")
 async def create_lobby(email: str, db: Session = Depends(get_db)):
     room = RoomService.create_room(db, email)
     return {
