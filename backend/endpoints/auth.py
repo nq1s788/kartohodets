@@ -27,13 +27,14 @@ async def solo_game(distance: int, email: str, db: Session = Depends(get_db)):
 @router.post("/create/lobby")
 async def create_lobby(email: str, db: Session = Depends(get_db)):
     room = RoomService.create_room(db, email)
+    UserService.add_user_to_room(db, email, room.id)
     return {
         "lobbyCode": room.id
     }
 
-@router.post("/lobby/${code}")
+@router.post("/lobby/{code}")
 async def join_lobby(code: int, email: str, db: Session = Depends(get_db)):
-    if RoomService.get_room_by_id(code):
+    if RoomService.get_room_by_id(db, code):
         UserService.add_user_to_room(db, email, code)
     return
 
