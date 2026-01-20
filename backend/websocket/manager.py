@@ -23,6 +23,11 @@ class ConnectionManager:
             "text": email
             }
         )
+        players = RoomService.get_all_users(db, lobby_code)
+        await self.broadcast_to_lobby(lobby_code,{
+            "type": "init_lobby",
+            "players": players
+        })
 
     async def disconnect_from_lobby(self, websocket: WebSocket, lobby_code: int, email: str):
         UserService.zero_temp_score(db, email)

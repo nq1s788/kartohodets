@@ -42,10 +42,8 @@ async def lobby_websocket(
             data = await websocket.receive_json()
 
             # Обработка событий в лобби
-            if data.get("type") == "init_lobby":
-                await connection_manager.handle_init_lobby(lobby_code, db)
 
-            elif data.get("type") == "start_game":
+            if data.get("type") == "start_game":
                 await connection_manager.handle_start_game(lobby_code, data.get("username"))
 
             elif data.get("type") == "pano_id":
