@@ -52,6 +52,7 @@ function checkLocalStorage() {
         //token = email
         appState.user = token;
         showScreen('menu-screen');
+        console.log("вход по токену");
     } else {
         // Токена нет, показываем логин
         initGoogleLogin();
@@ -80,12 +81,11 @@ async function handleCredentialResponse(response) {
         const userEmail = responsePayload.email;
         const username = userEmail.split('@')[0];
         // 2. Отправляем email на сервер
-        const apiResponse = await fetch('/api/email', {
+        const apiResponse = await fetch(`/api/email?email=${username}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: username })
+            }
         });
 
         // 3. Проверяем ответ сервера
@@ -94,6 +94,7 @@ async function handleCredentialResponse(response) {
             appState.user = username;
             console.log("Вход выполнен успешно");
             showScreen('menu-screen');
+            
 
         } else {
             console.error("Ошибка сервера:", apiResponse.status);
@@ -287,13 +288,13 @@ function showScreen(screenId) {
 }
 
 function setupEventListeners() {
-    document.getElementById("google-btn").addEventListener('click', () => { //delete
-        appState.user = 'player';
+    /*document.getElementById("google-btn").addEventListener('click', () => { //delete
+        /*appState.user = 'player';
         const serverToken = "mock_server_token_" + Date.now();
         localStorage.setItem('kartohodets_token', serverToken);
         appState.token = serverToken;
         showScreen('menu-screen');
-    })
+    })*/
 
     // Кнопки меню
     document.getElementById('btn-solo').addEventListener('click', () => {
