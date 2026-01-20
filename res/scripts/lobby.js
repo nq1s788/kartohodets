@@ -55,16 +55,21 @@ function connectLobbyWebSocket() {
 
 function handleLobbyMessage(msg) {
     switch (msg.type) {
-        case 'PlayerAdded':
+        /*case 'PlayerAdded':
             //get notify_msg = { "type": "PlayerAdded", "text": "AnnaMarkova" }
             console.log("Новый игрок:", msg.text);
             if (appState.user != msg.text) addMarker(msg.text);
-            break;
+            break;*/
 
         case 'game_started':
             //получили game_started: true -- редирект
             console.log("Игра началась");
-            smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`);
+            if (appState.isHost) {
+                smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}&host=true`);
+            }
+            else {
+                smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`);
+            }
             break;
         //можно будет добавить чтоб предыдущих людей прорисовывать
         case 'init_lobby':
