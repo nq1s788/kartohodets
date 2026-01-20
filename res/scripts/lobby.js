@@ -32,6 +32,11 @@ function connectLobbyWebSocket() {
 
     socket.onopen = () => {
         console.log("Connected to Lobby WS");
+        socket.send(JSON.stringify({
+                type: 'player_added',
+                username: appState.user,
+                lobby_code: appState.currentLobby
+            }));
     };
 
     socket.onmessage = (event) => {
@@ -58,12 +63,12 @@ function handleLobbyMessage(msg) {
             smoothRedirect(`../../res/html/game_mp.html?lobby=${appState.currentLobby}`);
             break;
         //можно будет добавить чтоб предыдущих людей прорисовывать
-        /*   case 'init_lobby':
+        case 'init_lobby':
        // Сервер присылает массив имен: { type: 'init_lobby', players: ['player5', 'player2'] }
-       msg.players.forEach(playerName => {
-           addMarker(playerName); // Рисуем всех, кто уже был
-       });
-       break;*/
+            msg.players.forEach(playerName => {
+            addMarker(playerName); // Рисуем всех, кто уже был
+            });
+            break;
     }
 }
 
