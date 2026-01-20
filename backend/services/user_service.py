@@ -61,7 +61,7 @@ class UserService:
         user = UserService.get_user_by_email(db, email)
         if not user:
             return None
-        user.room_id = null
+        user.room_id = None
         db.commit()
         db.refresh(user)
         return user
