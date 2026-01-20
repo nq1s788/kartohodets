@@ -69,6 +69,7 @@ class ConnectionManager:
 
     async def handle_pano_id(self, lobby_code: int, pano_id: str, db=None):
        RoomService.update_pan_id(db, lobby_code, pano_id)
+       print('ПАНО АЙДИ ОТПРАВЛЯЕТСЯ')
        await self.broadcast_to_lobby(lobby_code, {
            "type": 'pano_id',
            "pano_id": pano_id
