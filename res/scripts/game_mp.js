@@ -20,6 +20,8 @@ const game = {
 
 let appState = JSON.parse(localStorage.getItem('appState'));
 let phrases = null;
+const defaultPanoId = 'sqpUDUxexIlMHRFZjnBSXQ';
+let countUpdate = 0;
 
 const PLACE_COLORS = [
     '#a3f5c8',
@@ -59,6 +61,7 @@ function handleServerMessage(msg) {
 
     switch (msg.type) {
         case 'pano_id':
+            initMap();
             console.log('PANO_IS I GOT', msg.pano_id)
             game.panoId = msg.pano_id;
             updateStreetViewPlayer();
@@ -106,6 +109,7 @@ async function loadPhrases() {
 }
 
 async function initMap() {
+    console.log('INIT MAP')
     const { Map } = await google.maps.importLibrary("maps");
     const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
@@ -188,6 +192,8 @@ function attachUIEvents() {
 // Игровая логика
 
 function updateStreetView() {
+    countUpdate++;
+
     console.log('updateStreetView')
     const svService = new google.maps.StreetViewService();
     showGameUI('search');
@@ -231,6 +237,7 @@ function updateStreetViewPlayer() {
     svService.getPanorama({ pano: game.panoId }, (data, status) => {
         if (status === google.maps.StreetViewStatus.OK) {
             game.ansLoc = data.location.latLng;
+            console.log(game.streetView);
             game.streetView.setPosition(game.ansLoc);
             showGameUI('guess');
         }
