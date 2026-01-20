@@ -257,8 +257,8 @@ function startTimer() { //вызывается когда получили со�
             game.firstAns = false
             myResult();
             //playersResults - получаем с сервера
-            playersResults = debugPlayersRes()
-            resultGame(playersResults);
+            //playersResults = debugPlayersRes()
+            //resultGame(playersResults);
         }
     }, 1000);
 }
@@ -357,7 +357,7 @@ function showGameUI(stage) {
 
             break;
         case 'guess':
-            debugOtherAnsFirst() // ЭМУЛЯЦИЯ УДАЛИТЬ
+            //debugOtherAnsFirst() // ЭМУЛЯЦИЯ УДАЛИТЬ
 
             game.pin2d = false;
             document.getElementById('map3d').classList.remove('blur');
@@ -375,7 +375,7 @@ function showGameUI(stage) {
             timer.textContent = 15;
 
             if (!isHost)
-                debugHostNextGame()
+                //debugHostNextGame()
             break;
         case 'wait':
             document.getElementById("guess").disabled = true;
