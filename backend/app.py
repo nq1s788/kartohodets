@@ -2,10 +2,8 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from config import config
-
-# Import controllers
-from controllers import users, auth
-from websocket.handler import websocket_endpoint
+from endpoints import auth
+from websocket import room_ws
 
 # Create tables on startup
 from models.database import Base, engine
@@ -22,23 +20,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include controllers
-app.include_router(users.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
+app.include_router(auth.router)
+app.include_router(room_ws.router)
 
-# WebSocket route
-@app.websocket("/ws")
-async def websocket_route(websocket: WebSocket):
-    await websocket_endpoint(websocket)
-
-# Health check
-@app.get("/")
-def read_root():
-    return {"status": "ok", "message": "Backend is running"}
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
 
 if __name__ == "__main__":
     uvicorn.run(
