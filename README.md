@@ -43,3 +43,17 @@ npx serve .
 пкм на файл `index.html` -> Open with Live Server
 
 Открывать `index.html` напрямую нельзя - для работы `three.js` нужен локальный сервер.
+
+
+### щас запускать ТАК
+
+
+первый запуск
+```bash
+npm install
+python backend/app.py
+````
+потом
+```bash
+python backend/app.py
+````
