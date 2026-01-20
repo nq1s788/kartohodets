@@ -63,4 +63,4 @@ async def lobby_websocket(
                 await connection_manager.handle_game_reset(lobby_code)
 
     except WebSocketDisconnect:
-        await connection_manager.disconnect_from_lobby(lobby_code, email)
+        await connection_manager.disconnect_from_lobby(websocket, lobby_code, email)
