@@ -50,6 +50,7 @@ async def lobby_websocket(
 
             elif data.get("type") == "pano_id":
                 await connection_manager.handle_pano_id(lobby_code, data.get("pano_id"), db)
+                print(data.get("pano_id"))
 
             elif data.get("type") == "first_ans":
                 await connection_manager.handle_first_ans(lobby_code)
