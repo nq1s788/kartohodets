@@ -83,7 +83,7 @@ function attachUIEvents() {
     document.getElementById('leave').addEventListener('click', () => {
 
         localStorage.setItem('uiState', 'menu-screen');
-        smoothRedirect('../../index.html')
+        smoothRedirect('/')
         //window.location.href = 'index.html';
 
     });
