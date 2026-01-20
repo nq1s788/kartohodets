@@ -39,10 +39,6 @@ class ConnectionManager:
             for connection in self.active_lobbies[lobby_code]:
                 await connection.send_json(message)
 
-    async def handle_init_lobby(self, lobby_code: int, db: Session = Depends(get_db)):
-        message = RoomService.get_all_users_with_score(db, lobby_code).keys
-        await self.broadcast_to_lobby(lobby_code, message)
-
     async def handle_start_game(self, lobby_code: int):
         await self.broadcast_to_lobby(lobby_code, {"game_started": true})
 
