@@ -1,3 +1,4 @@
+import asyncio
 from typing import Dict, List
 from fastapi import WebSocket, Depends
 from sqlalchemy import true, false
@@ -20,6 +21,8 @@ class ConnectionManager:
             print(f"Created room {lobby_code} in manager")
         self.active_lobbies[lobby_code].append(websocket)
         print(self.active_lobbies)
+        # Небольшая задержка для инициализации соединения
+        await asyncio.sleep(0.1)
 
         # Уведомляем всех в лобби о новом игроке
         await self.broadcast_to_lobby(lobby_code, {
@@ -28,6 +31,7 @@ class ConnectionManager:
             }
         )
         players = RoomService.get_all_users(db, lobby_code)
+        await asyncio.sleep(0.1)
         await self.broadcast_to_lobby(lobby_code,{
             "type": "init_lobby",
             "players": players
