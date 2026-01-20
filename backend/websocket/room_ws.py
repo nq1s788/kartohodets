@@ -49,7 +49,7 @@ async def lobby_websocket(
                 await connection_manager.handle_start_game(lobby_code)
 
             elif data.get("type") == "pano_id":
-                await connection_manager.handle_pano_id(lobby_code, data.get("pano_id"))
+                await connection_manager.handle_pano_id(lobby_code, data.get("pano_id"), db)
 
             elif data.get("type") == "first_ans":
                 await connection_manager.handle_first_ans(lobby_code)
@@ -57,10 +57,10 @@ async def lobby_websocket(
             elif data.get("type") == "my_res":
                 await connection_manager.handle_my_res(lobby_code,
                                                        data.get("username"), data.get("lat"), data.get("lng"),
-                                                       data.get("distance")
+                                                       data.get("distance", db)
                                                        )
             elif data.get("type") == "game_reset":
                 await connection_manager.handle_game_reset(lobby_code)
 
     except WebSocketDisconnect:
-        await connection_manager.disconnect_from_lobby(websocket, lobby_code, email)
+        await connection_manager.disconnect_from_lobby(websocket, lobby_code, email, db)

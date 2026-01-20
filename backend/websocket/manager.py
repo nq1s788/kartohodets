@@ -39,7 +39,7 @@ class ConnectionManager:
             "players": players
         })
 
-    async def disconnect_from_lobby(self, websocket: WebSocket, lobby_code: int, email: str):
+    async def disconnect_from_lobby(self, websocket: WebSocket, lobby_code: int, email: str, db=None):
         UserService.zero_temp_score(db, email)
         UserService.remove_user_from_room(db, email)
         self.active_lobbies[lobby_code].remove(websocket)
@@ -67,7 +67,7 @@ class ConnectionManager:
     async def handle_start_game(self, lobby_code: int):
         await self.broadcast_to_lobby(lobby_code, {"type": 'game_started'})
 
-    async def handle_pano_id(self, lobby_code: int, pano_id: int):
+    async def handle_pano_id(self, lobby_code: int, pano_id: int, db=None):
        RoomService.update_pan_id(db, lobby_code, pano_id)
        await self.broadcast_to_lobby(lobby_code, {
            "type": 'pano_id',
@@ -77,7 +77,7 @@ class ConnectionManager:
     async def handle_first_ans(self, lobby_code: int):
         await self.broadcast_to_lobby(lobby_code, {"type": 'first_ans'})
 
-    async def handle_my_res(self, lobby_code: int, email: str, lat: int, lng: int, distance: int):
+    async def handle_my_res(self, lobby_code: int, email: str, lat: int, lng: int, distance: int, db=None):
         UserService.update_coord(db, email, lat, lng)
         UserService.update_temp_score(db, email, distance)
         UserService.update_and_return_elo(db, email, distance)
