@@ -151,8 +151,8 @@ async function initMap() {
     //connectWebSocket();
     attachUIEvents();
     loadPhrases();
+    updateStreetView();
 }
-window.onload = () => { updateStreetView() };
 
 function attachUIEvents() {
     document.getElementById('leave').addEventListener('click', () => {
@@ -188,43 +188,37 @@ function attachUIEvents() {
 function updateStreetView() {
     const svService = new google.maps.StreetViewService();
     showGameUI('search');
-    try {
-        if (isHost) {
-            const coords = getRandomCoords();
-            svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
-                if (status === google.maps.StreetViewStatus.OK) {
-                    game.ansLoc = data.location.latLng;
-                    game.streetView.setPosition(game.ansLoc);
-                    showGameUI('guess');
-                    
-                    //хост отправляет pano_id
+    if (isHost) {
+        const coords = getRandomCoords();
+        svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
+            if (status === google.maps.StreetViewStatus.OK) {
+                game.ansLoc = data.location.latLng;
+                game.streetView.setPosition(game.ansLoc);
+                showGameUI('guess');
 
-                    if (socket && socket.readyState === WebSocket.OPEN) {
-                        socket.send(JSON.stringify({
-                            type: 'pano_id',
-                            pano_id: data.location.pano,
-                            currentLobby: appState.currentLobby
-                        }));
-                        console.log(data.location.pano)
-                        // smoothRedirect вызывается в handleLobbyMessage когда сервер ответит всем game_started
-                    } else {
-                        console.error("Socket not ready");
-                    }
-                    //хост отправляет pano_id
+                //хост отправляет pano_id
 
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        type: 'pano_id',
+                        pano_id: data.location.pano,
+                        currentLobby: appState.currentLobby
+                    }));
+                    console.log(data.location.pano)
+                    // smoothRedirect вызывается в handleLobbyMessage когда сервер ответит всем game_started
                 } else {
-                    updateStreetView(); //если панорама не найдена
+                    console.error("Socket not ready");
                 }
-            });
-        }
-        else {
-            /*game.panoId='umcDun81PnfGiw05xxrTOA';
-            updateStreetViewPlayer()*/
-        }
-    }
-    catch (error) {
-        console.error("Ошибка:", error);
+                //хост отправляет pano_id
 
+            } else {
+                updateStreetView(); //если панорама не найдена
+            }
+        });
+    }
+    else {
+        /*game.panoId='umcDun81PnfGiw05xxrTOA';
+        updateStreetViewPlayer()*/
     }
 }
 
