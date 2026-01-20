@@ -45,6 +45,7 @@ function connectWebSocket() {
 
     socket.onopen = () => {
         console.log("WS Game connection established");
+        updateStreetView();
     };
 
     socket.onmessage = (event) => {
@@ -58,6 +59,7 @@ function handleServerMessage(msg) {
 
     switch (msg.type) {
         case 'pano_id':
+            console.log('PANO_IS I GOT', msg.pano_id)
             game.panoId = msg.pano_id;
             updateStreetViewPlayer();
             break;
@@ -151,7 +153,7 @@ async function initMap() {
     //connectWebSocket();
     attachUIEvents();
     loadPhrases();
-    updateStreetView();
+    //updateStreetView();
 }
 
 function attachUIEvents() {
@@ -186,6 +188,7 @@ function attachUIEvents() {
 // Игровая логика
 
 function updateStreetView() {
+    console.log('updateStreetView')
     const svService = new google.maps.StreetViewService();
     showGameUI('search');
     if (isHost) {
