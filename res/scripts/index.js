@@ -81,6 +81,7 @@ async function handleCredentialResponse(response) {
         console.log("!!!!!!!!!!!!!!!!!");
         const userEmail = responsePayload.email;
         const username = userEmail.split('@')[0];
+        console.log(username);
         console.log(userEmail, username);
         // 2. Отправляем email на сервер
         const apiResponse = await fetch(`/api/email?email=${encodeURIComponent(username)}`, {
@@ -212,6 +213,7 @@ async function joinLobby() {
         });
         if (response.ok) {
             appState.currentLobby = code;
+            appState.isHost = false;
             localStorage.setItem('appState', JSON.stringify(appState));
             renderLobbyScreen();
         }   else {
@@ -224,7 +226,6 @@ async function joinLobby() {
     }
     console.log("Вход в лобби:", code);
     console.log(appState.currentLobby)
-    appState.isHost = false;
     console.log(appState.currentLobby)
 }
 

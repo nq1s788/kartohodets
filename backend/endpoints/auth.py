@@ -32,9 +32,9 @@ async def create_lobby(email: str, db: Session = Depends(get_db)):
         "lobbyCode": room.id
     }
 
-@router.post("/lobby/${code}")
+@router.post("/lobby/{code}")
 async def join_lobby(code: int, email: str, db: Session = Depends(get_db)):
-    if RoomService.get_room_by_id(code):
+    if RoomService.get_room_by_id(db, code):
         UserService.add_user_to_room(db, email, code)
     return
 
