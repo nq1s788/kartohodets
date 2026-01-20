@@ -39,9 +39,24 @@ class ConnectionManager:
         self.active_lobbies[lobby_code].remove(websocket)
 
     async def broadcast_to_lobby(self, lobby_code: int, message: dict):
-        if lobby_code in self.active_lobbies:
-            for connection in self.active_lobbies[lobby_code]:
+        """Отправка сообщения всем в лобби с обработкой ошибок"""
+        if lobby_code not in self.active_lobbies:
+            return
+
+        disconnected = []
+
+        for connection in self.active_lobbies[lobby_code]:
+            try:
+                # Используем create_task для асинхронной отправки
                 await connection.send_json(message)
+            except Exception as e:
+                print(f"Failed to send to connection: {e}")
+                disconnected.append(connection)
+
+        # Удаляем отключенные соединения
+        for connection in disconnected:
+            if connection in self.active_lobbies[lobby_code]:
+                self.active_lobbies[lobby_code].remove(connection)
 
     async def handle_start_game(self, lobby_code: int):
         await self.broadcast_to_lobby(lobby_code, {"game_started": true})
