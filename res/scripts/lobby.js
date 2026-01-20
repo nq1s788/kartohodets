@@ -71,7 +71,7 @@ function handleLobbyMessage(msg) {
             // Сервер присылает массив имен: { type: 'init_lobby', players: ['player5', 'player2'] }
             msg.players.forEach(playerName => {
                 if (appState.user != playerName) {
-                    console.log("Игрок в лобби был:", msg.text);
+                    console.log("Игрок в лобби был:", playerName);
                     addMarker(playerName)
                 }; // Рисуем всех, кто уже был
             });
