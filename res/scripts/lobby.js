@@ -37,10 +37,10 @@ function connectLobbyWebSocket() {
     socket.onopen = () => {
         console.log("Connected to Lobby WS");
         socket.send(JSON.stringify({
-                type: 'player_added',
-                username: appState.user,
-                lobby_code: appState.currentLobby
-            }));
+            type: 'player_added',
+            username: appState.user,
+            lobby_code: appState.currentLobby
+        }));
     };
 
     socket.onmessage = (event) => {
@@ -58,7 +58,7 @@ function handleLobbyMessage(msg) {
         case 'PlayerAdded':
             //get notify_msg = { "type": "PlayerAdded", "text": "AnnaMarkova" }
             console.log("Новый игрок:", msg.text);
-            addMarker(msg.text);
+            if (appState.user != msg.text) addMarker(msg.text);
             break;
 
         case 'game_started':
@@ -68,9 +68,12 @@ function handleLobbyMessage(msg) {
             break;
         //можно будет добавить чтоб предыдущих людей прорисовывать
         case 'init_lobby':
-       // Сервер присылает массив имен: { type: 'init_lobby', players: ['player5', 'player2'] }
+            // Сервер присылает массив имен: { type: 'init_lobby', players: ['player5', 'player2'] }
             msg.players.forEach(playerName => {
-            addMarker(playerName); // Рисуем всех, кто уже был
+                if (appState.user != playerName) {
+                    console.log("Игрок в лобби был:", msg.text);
+                    addMarker(playerName)
+                }; // Рисуем всех, кто уже был
             });
             break;
     }
@@ -113,7 +116,7 @@ function polarToDecar(rad, d, mx) {
 const startBtn = document.getElementById('btn-start-game');
 const guestMsg = document.getElementById('guest-msg');
 
-//addMarker(appState.user)
+addMarker(appState.user)
 
 if (appState.isHost) {
     startBtn.style.display = 'block';
