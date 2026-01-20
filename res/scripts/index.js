@@ -190,8 +190,10 @@ async function loadLeaderboard() {
 function handleLobbyInput() {
     const inputs = [...document.querySelectorAll('.otp-input')];
     const btn = document.getElementById('btn-enter-lobby');
-
-    btn.disabled = inputs.some(x => !(x.value && x.value > 0 && x.value < 10));
+    let code = 0;
+    inputs.forEach(x=>{code=code*10+x.value});
+    console.log(code);
+    btn.disabled = inputs.some(x => !(x.value && x.value >= 0 && x.value < 10));
 }
 
 async function joinLobby() {
@@ -211,6 +213,7 @@ async function joinLobby() {
         if (response.ok) {
             appState.currentLobby = code;
             localStorage.setItem('appState', JSON.stringify(appState));
+            renderLobbyScreen();
         }   else {
              console.error("Server returned:", response.status);
         }
@@ -219,14 +222,10 @@ async function joinLobby() {
         console.error("Ошибка при проверке кода:", error);
 
     }
-
-    // Запрос: GET /api/lobby/{code} - проверка существования
-    // Если ОК:
     console.log("Вход в лобби:", code);
     console.log(appState.currentLobby)
     appState.isHost = false;
-
-    renderLobbyScreen();
+    console.log(appState.currentLobby)
 }
 
 async function createLobby() {
@@ -241,7 +240,7 @@ async function createLobby() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        console.log(response)
         const data = await response.json();
         const lobbyCode = data.lobbyCode;
         if (!lobbyCode) {
