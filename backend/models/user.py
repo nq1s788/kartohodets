@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from .database import Base
 
 
@@ -10,7 +11,7 @@ class User(Base):
     elo = Column(Integer)
     matches = Column(Integer)
     coord = Column(String)
-    room_id = Column(Integer, foreign_key="Rooms.id")
+    room_id = Column(Integer, ForeignKey("Rooms.id"))
     sum_km = Column(Integer)
     temp_elo = Column(Integer)
 

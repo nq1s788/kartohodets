@@ -4,7 +4,7 @@ from backend.models.database import get_db
 from backend.services.room_service import RoomService
 from . import manager
 from .manager import connection_manager
-from ..services.user_service import UserService
+from backend.services.user_service import UserService
 
 router = APIRouter()
 

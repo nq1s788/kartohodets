@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Time
+from sqlalchemy import Column, Integer, String, Time, ForeignKey
 from .database import Base
 
 
@@ -7,5 +7,5 @@ class Room(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     pan_id = Column(String)
-    host_email = Column(String, foreign_key="Users.email")
+    host_email = Column(String, ForeignKey("Users.email"))
 
