@@ -118,8 +118,10 @@ class UserService:
         accuracy = exp(-km / 5000)
         user.matches += 1
         k = max(16, 64 * 0.95 ** user.matches)
+        print(k, 78 * 0.95 ** user.matches)
         expected = 0.5 + (user.elo - 1000) / 4000
-        user.elo = round(k * (accuracy - expected))
+        user.elo += round(k * (accuracy - expected))
         db.commit()
         db.refresh(user)
+        print(km, accuracy, k, expected, user.elo)
         return user.elo
