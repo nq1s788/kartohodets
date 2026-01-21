@@ -204,7 +204,7 @@ async function loadLeaderboard() {
                 body.innerHTML += `
                 <div class="row ${(i + 1) == statsScreenData.user.rank ? 'me' : ''}">
                   <div>${i + 1}. ${p.name}</div>
-                  <div class="score">${Number(p.score).toFixed(2)}</div>
+                  <div class="score">${Math.round(p.score)}</div>
                 </div>`;
             });
         }
