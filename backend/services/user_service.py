@@ -1,4 +1,4 @@
-from sqlalchemy import null
+from math import exp
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import desc
 
@@ -115,9 +115,11 @@ class UserService:
         user = UserService.get_user_by_email(db, email)
         if not user:
             return None
-        user.sum_km += (127420 - km)
+        accuracy = exp(-km / 5000)
         user.matches += 1
-        user.elo = user.sum_km / user.matches
+        k = max(16, 64 * 0.95 ** user.matches)
+        expected = 0.5 + (user.elo - 1000) / 4000
+        user.elo = round(k * (accuracy - expected))
         db.commit()
         db.refresh(user)
         return user.elo
