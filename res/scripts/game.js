@@ -164,7 +164,7 @@ function resultGame() {
 
 async function sendDistance(variable) {
   try {
-    const payload = Math.trunc(variable / 100);
+    const payload = Math.trunc(variable / 1000);
     const response = await fetch(`/api/soloResults?email=${appState.user}&distance=${payload}`, {
       method: 'POST',
       headers: {
