@@ -82,7 +82,7 @@ class ConnectionManager:
         print(lat, lng)
         update = UserService.update_coord(db, email, lat, lng)
         if update == None:
-            print('ПИЗДЕЦ')
+            print('ПИЗДЕЦ', email, lat, lng)
         UserService.update_temp_score(db, email, distance)
         UserService.update_and_return_elo(db, email, distance)
 
