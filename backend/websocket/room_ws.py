@@ -63,5 +63,8 @@ async def lobby_websocket(
             elif data.get("type") == "game_reset":
                 await connection_manager.handle_game_reset(lobby_code)
 
+            elif data.get("type") == "game_over":
+                await connection_manager.handle_game_over(lobby_code, db)
+
     except WebSocketDisconnect:
         await connection_manager.disconnect_from_lobby(websocket, lobby_code, email, db)

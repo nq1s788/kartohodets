@@ -22,7 +22,6 @@ let appState = JSON.parse(localStorage.getItem('appState'));
 let phrases = null;
 const defaultCoord = { lat: 56.85579951654341, lng: 60.60928861349073 };
 let countUpdate = 0;
-let flagRes = true;
 
 const PLACE_COLORS = [
     '#a3f5c8',
@@ -64,7 +63,6 @@ function handleServerMessage(msg) {
         case 'pano_id':
             console.log('PANO_IS I GOT', msg.pano_id)
             game.panoId = msg.pano_id;
-            flagRes = true
             updateStreetViewPlayer();
             break;
 
@@ -79,10 +77,7 @@ function handleServerMessage(msg) {
         case 'round_result':
             // type: ‘round_result’, results: [ {name, coord, ...}, ... ]
             // Сохраняем/отображаем результаты
-            if (flagRes) {
-                resultGame(msg.results);
-                flagRes = false
-            }
+            resultGame(msg.results);
             break;
 
         case 'game_reset':
