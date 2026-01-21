@@ -20,7 +20,18 @@ const game = {
 
 let appState = JSON.parse(localStorage.getItem('appState'));
 let phrases = null;
-const defaultCoord = { lat: 56.85579951654341, lng: 60.60928861349073 };
+const defaultCoords = [{ lat: 56.85579951654341, lng: 60.60928861349073 },
+{ lat: 52.649582917138396, lng: 59.57200213771839 },
+{ lat: 22.268200851747338, lng: 114.18165355915593 },
+{ lat: 45.75135435140489, lng: 21.229017727754133 },
+{ lat: 36.2058375573225, lng: -115.98253991826802 },
+{ lat: 51.758940, lng: -1.213139 },
+{ lat: 51.206032, lng: -0.523820 },
+{ lat: 14.10315377688974, lng: -15.545182101947846 },
+{ lat: 35.87010014591649, lng: 140.04907400101646 },
+{ lat: -33.27521248406271, lng: 148.015133145926 },
+{ lat: 62.529648406525176, lng: 113.976881375484 },
+];
 let countUpdate = 0;
 
 const PLACE_COLORS = [
@@ -201,7 +212,7 @@ function updateStreetView() {
     if (isHost) {
         let coords = getRandomCoords();
         if (countUpdate > 10) {
-            coords = defaultCoord;
+            coords = defaultCoords[Math.floor(Math.random() * defaultCoords.length)];
         }
         svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
             if (status === google.maps.StreetViewStatus.OK) {
