@@ -25,6 +25,7 @@ window.onload = () => {
         showScreen(uiState);
         localStorage.removeItem('uiState');
     }
+    loadLeaderboard()
 };
 window.addEventListener('load', () => {
     const fade = document.getElementById('fade');
@@ -54,6 +55,7 @@ function checkLocalStorage() {
         appState.user = token;
         showScreen('menu-screen');
         console.log("вход по токену");
+        console.log(token);
     } else {
         // Токена нет, показываем логин
         initGoogleLogin();
@@ -202,7 +204,7 @@ async function loadLeaderboard() {
                 body.innerHTML += `
                 <div class="row ${(i + 1) == statsScreenData.user.rank ? 'me' : ''}">
                   <div>${i + 1}. ${p.name}</div>
-                  <div class="score">${Number(p.score).toFixed(2)}</div>
+                  <div class="score">${Math.round(p.score)}</div>
                 </div>`;
             });
         }
@@ -257,7 +259,6 @@ async function joinLobby() {
         if (response.ok) {
             appState.currentLobby = code;
             appState.isHost = false;
-            localStorage.setItem('appState', JSON.stringify(appState));
             renderLobbyScreen();
         }   else {
              console.error("Server returned:", response.status);
@@ -293,7 +294,6 @@ async function createLobby() {
 
         appState.isHost = true;
         appState.currentLobby = lobbyCode;
-        localStorage.setItem('appState', JSON.stringify(appState));
         renderLobbyScreen();
 
     } catch (error) {

@@ -1,6 +1,8 @@
 console.log('renderLobbyScreen')
 
 function smoothRedirect(url) {
+    localStorage.setItem('appState', JSON.stringify(appState));
+
     const fade = document.getElementById('fade');
     fade.classList.add('active');
 
@@ -159,7 +161,6 @@ document.getElementById('btn-leave-lobby').addEventListener('click', () => {
     appState.lobbyGames = 1;
     appState.lobbyScore = 0;
 
-    localStorage.setItem('appState', JSON.stringify(appState));
     localStorage.setItem('uiState', 'room-enter-screen');
     smoothRedirect('/')
     //window.location.href = 'index.html';
