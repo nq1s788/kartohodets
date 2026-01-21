@@ -78,8 +78,11 @@ class ConnectionManager:
     async def handle_first_ans(self, lobby_code: int):
         await self.broadcast_to_lobby(lobby_code, {"type": 'first_ans'})
 
-    async def handle_my_res(self, lobby_code: int, email: str, lat: int, lng: int, distance: int, db: Session):
-        UserService.update_coord(db, email, lat, lng)
+    async def handle_my_res(self, lobby_code: int, email: str, lat: float, lng: float, distance: int, db: Session):
+        print(lat, lng)
+        update = UserService.update_coord(db, email, lat, lng)
+        if update == None:
+            print('ПИЗДЕЦ')
         UserService.update_temp_score(db, email, distance)
         UserService.update_and_return_elo(db, email, distance)
 
