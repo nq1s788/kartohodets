@@ -55,8 +55,9 @@ class RoomService:
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
         for user in users:
+            lat, lng = map(float, user.coord.split())
             results.append({'name': user.email,
-                            'coord': tuple(map(float, user.coord.split()))})
+                            'coord': {'lat': lat, 'lng': lng}})
         return results
 
     @staticmethod
@@ -65,7 +66,8 @@ class RoomService:
         users = db.query(User).filter(User.room_id == room.id).all()
         results = []
         for user in users:
+            lat, lng = map(float, user.coord.split())
             results.append({'name': user.email,
-                            'coord': tuple(map(float, user.coord.split())),
+                            'coord': {'lat': lat, 'lng': lng},
                             'temp_score': user.temp_elo})
         return results
