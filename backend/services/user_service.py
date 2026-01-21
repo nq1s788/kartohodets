@@ -113,6 +113,8 @@ class UserService:
     @staticmethod
     def update_and_return_elo(db: Session, email: str, km: int):
         user = UserService.get_user_by_email(db, email)
+        if not user:
+            return None
         user.sum_km += (127420 - km)
         user.matches += 1
         user.elo = user.sum_km / user.matches
