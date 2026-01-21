@@ -30,7 +30,7 @@ class UserService:
                 break
         stats = {'rank': rank, 'score': user.elo, 'games': user.matches}
         leaderboard = []
-        for user in users:
+        for user in users[:10]:
             leaderboard.append({
                 'name': user.email,
                 'score': user.elo,

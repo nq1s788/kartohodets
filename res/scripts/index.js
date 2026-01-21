@@ -51,9 +51,11 @@ function checkLocalStorage() {
     const token = localStorage.getItem('token');
     if (token) {
         //token = email
+        
         appState.user = token;
         showScreen('menu-screen');
         console.log("вход по токену");
+        console.log(token);
     } else {
         // Токена нет, показываем логин
         initGoogleLogin();
@@ -64,8 +66,13 @@ function checkLocalStorage() {
 }
 
 function initGoogleLogin() {
+    const container = document.getElementById("google-btn");
+    container.innerHTML = '<button onclick="handleMockLogin()">sign in without google</button>';
+}
+
+/*function initGoogleLogin() {
     // Инициализация кнопки Google Auth (GIS)
-    google.accounts.id.initialize({
+    /*google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: handleCredentialResponse//handleGoogleResponse
     });
@@ -73,15 +80,52 @@ function initGoogleLogin() {
         document.getElementById("google-btn"),
         { theme: "outline", size: "large" }
     );
+}*/
+
+async function handleMockLogin() {
+    const mockUsers = [
+        "helebore", "smellydog356", "mclovin", 
+        "kristiana_F", "ivan_gamaz", "ribka_pickmi", 
+        "spdkun666", "azalkinmmm", "anna_mrkv", 
+        "sweetevelyn"
+    ];
+    const username = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+
+    try {
+        const apiResponse = await fetch(`${API_BASE_URL}/api/email?email=${encodeURIComponent(username)}`, {
+            method: 'POST'
+        });
+
+        if (apiResponse.ok) {
+            finalizeLogin(username);
+        } else {
+            console.error("Ошибка сервера:", apiResponse.status);
+            // finalizeLogin(username); 
+        }
+    } catch (error) {
+        console.error("Ошибка входа:", error);
+    }
 }
 
+function finalizeLogin(username) {
+    localStorage.setItem('token', username);
+    appState.user = username;
+    appState.token = username;
+    console.log("Вход выполнен успешно");
+    showScreen('menu-screen');
+}
+/*
 async function handleCredentialResponse(response) {
     try {
         // 1. Получаем email из токена Google
-        const responsePayload = decodeJwtResponse(response.credential);
+        //const responsePayload = decodeJwtResponse(response.credential);
         console.log("!!!!!!!!!!!!!!!!!");
-        const userEmail = responsePayload.email;
-        const username = userEmail.split('@')[0];
+        //const userEmail = responsePayload.email;
+        //const username = userEmail.split('@')[0];
+        const mockUsers = [
+        "helebore", "smellydog356", "mclovin", "kristiana_F", "ivan_gamaz",
+        "ribka_pickmi", "spdkun666", "azalkinmmm", "anna_mrkv", "sweetevelyn"];    
+        const username = mockUsers[Math.floor(Math.random() * mockUsers.length)];
         console.log(username);
         console.log(userEmail, username);
         // 2. Отправляем email на сервер
@@ -119,7 +163,7 @@ function decodeJwtResponse(token) {
     }).join(''));
 
     return JSON.parse(jsonPayload);
-}
+}*/
 
 function logout() {
     localStorage.removeItem('token');
