@@ -20,6 +20,8 @@ const game = {
 
 let appState = JSON.parse(localStorage.getItem('appState'));
 let phrases = null;
+const defaultPanoId = 'sqpUDUxexIlMHRFZjnBSXQ';
+let countUpdate = 0;
 
 const PLACE_COLORS = [
     '#a3f5c8',
@@ -45,6 +47,7 @@ function connectWebSocket() {
 
     socket.onopen = () => {
         console.log("WS Game connection established");
+        updateStreetView();
     };
 
     socket.onmessage = (event) => {
@@ -58,6 +61,8 @@ function handleServerMessage(msg) {
 
     switch (msg.type) {
         case 'pano_id':
+            initMap();
+            console.log('PANO_IS I GOT', msg.pano_id)
             game.panoId = msg.pano_id;
             updateStreetViewPlayer();
             break;
@@ -104,6 +109,7 @@ async function loadPhrases() {
 }
 
 async function initMap() {
+    console.log('INIT MAP')
     const { Map } = await google.maps.importLibrary("maps");
     const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
@@ -151,8 +157,8 @@ async function initMap() {
     //connectWebSocket();
     attachUIEvents();
     loadPhrases();
+    //updateStreetView();
 }
-window.onload = () => { updateStreetView() };
 
 function attachUIEvents() {
     document.getElementById('leave').addEventListener('click', () => {
@@ -186,45 +192,42 @@ function attachUIEvents() {
 // Игровая логика
 
 function updateStreetView() {
+    countUpdate++;
+
+    console.log('updateStreetView')
     const svService = new google.maps.StreetViewService();
     showGameUI('search');
-    try {
-        if (isHost) {
-            const coords = getRandomCoords();
-            svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
-                if (status === google.maps.StreetViewStatus.OK) {
-                    game.ansLoc = data.location.latLng;
-                    game.streetView.setPosition(game.ansLoc);
-                    showGameUI('guess');
-                    
-                    //хост отправляет pano_id
+    if (isHost) {
+        const coords = getRandomCoords();
+        svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
+            if (status === google.maps.StreetViewStatus.OK) {
+                game.ansLoc = data.location.latLng;
+                game.streetView.setPosition(game.ansLoc);
+                showGameUI('guess');
 
-                    if (socket && socket.readyState === WebSocket.OPEN) {
-                        socket.send(JSON.stringify({
-                            type: 'pano_id',
-                            pano_id: data.location.pano,
-                            currentLobby: appState.currentLobby
-                        }));
-                        console.log(data.location.pano)
-                        // smoothRedirect вызывается в handleLobbyMessage когда сервер ответит всем game_started
-                    } else {
-                        console.error("Socket not ready");
-                    }
-                    //хост отправляет pano_id
+                //хост отправляет pano_id
 
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        type: 'pano_id',
+                        pano_id: data.location.pano,
+                        currentLobby: appState.currentLobby
+                    }));
+                    console.log(data.location.pano)
+                    // smoothRedirect вызывается в handleLobbyMessage когда сервер ответит всем game_started
                 } else {
-                    updateStreetView(); //если панорама не найдена
+                    console.error("Socket not ready");
                 }
-            });
-        }
-        else {
-            /*game.panoId='umcDun81PnfGiw05xxrTOA';
-            updateStreetViewPlayer()*/
-        }
-    }
-    catch (error) {
-        console.error("Ошибка:", error);
+                //хост отправляет pano_id
 
+            } else {
+                updateStreetView(); //если панорама не найдена
+            }
+        });
+    }
+    else {
+        /*game.panoId='umcDun81PnfGiw05xxrTOA';
+        updateStreetViewPlayer()*/
     }
 }
 
@@ -234,6 +237,7 @@ function updateStreetViewPlayer() {
     svService.getPanorama({ pano: game.panoId }, (data, status) => {
         if (status === google.maps.StreetViewStatus.OK) {
             game.ansLoc = data.location.latLng;
+            console.log(game.streetView);
             game.streetView.setPosition(game.ansLoc);
             showGameUI('guess');
         }
