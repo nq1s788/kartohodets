@@ -47,17 +47,10 @@ function smoothRedirect(url) {
 // --- Логика Аутентификации --- хз.. думайте
 
 function checkLocalStorage() {
-    //const token = localStorage.getItem('token');
-    const mockUsers = [
-        "helebore", "smellydog356", "mclovin", "kristiana_F", "ivan_gamaz",
-        "ribka_pickmi", "spdkun666", "azalkinmmm", "anna_mrkv", "sweetevelyn"
-    ];
-    const token = mockUsers[Math.floor(Math.random() * mockUsers.length)];
-    localStorage.setItem('token', token);
+    const token = localStorage.getItem('token');
     if (token) {
         //token = email
         appState.user = token;
-
         showScreen('menu-screen');
         console.log("вход по токену");
     } else {
