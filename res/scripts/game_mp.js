@@ -20,7 +20,7 @@ const game = {
 
 let appState = JSON.parse(localStorage.getItem('appState'));
 let phrases = null;
-const defaultPanoId = 'sqpUDUxexIlMHRFZjnBSXQ';
+const defaultCoord = { lat: 56.85579951654341, lng: 60.60928861349073 };
 let countUpdate = 0;
 
 const PLACE_COLORS = [
@@ -61,7 +61,6 @@ function handleServerMessage(msg) {
 
     switch (msg.type) {
         case 'pano_id':
-            initMap();
             console.log('PANO_IS I GOT', msg.pano_id)
             game.panoId = msg.pano_id;
             updateStreetViewPlayer();
@@ -194,11 +193,12 @@ function attachUIEvents() {
 function updateStreetView() {
     countUpdate++;
 
-    console.log('updateStreetView')
+    console.log('updateStreetView', isHost)
     const svService = new google.maps.StreetViewService();
     showGameUI('search');
     if (isHost) {
         const coords = getRandomCoords();
+        if (countUpdate > 5) coords = defaultCoord;
         svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
             if (status === google.maps.StreetViewStatus.OK) {
                 game.ansLoc = data.location.latLng;
@@ -520,3 +520,4 @@ function debugHostNextGame() {
     setTimeout(resetGame, 5000 * (1 + Math.random()))
 
 }
+initMap();
