@@ -294,7 +294,7 @@ function myResult() {
         name: appState.user,
         lat: pos.lat,
         lng: pos.lng,
-        distance: Math.round(distance * 10)
+        distance: Math.round(distance /100)
     }));
     document.getElementById("frase").textContent = frase(distance / 1000)
     appState.lobbyScore += scoreFromDistance(distance / 1000)
