@@ -58,7 +58,7 @@ async def lobby_websocket(
             elif data.get("type") == "my_res":
                 await connection_manager.handle_my_res(lobby_code,
                                                        data.get("username"), data.get("lat"), data.get("lng"),
-                                                       data.get("distance", db)
+                                                       data.get("distance"), db
                                                        )
             elif data.get("type") == "game_reset":
                 await connection_manager.handle_game_reset(lobby_code)
