@@ -35,7 +35,7 @@ class UserService:
                 'name': user.email,
                 'score': user.elo,
             })
-        return {'user': stats, 'top': leaderboard}
+        return {'user': stats, 'top': leaderboard[:10]}
 
 
     @staticmethod
