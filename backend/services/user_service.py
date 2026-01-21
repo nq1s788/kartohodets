@@ -120,4 +120,5 @@ class UserService:
         user.elo = round(user.sum_km / user.matches)
         db.commit()
         db.refresh(user)
+        print(user.elo, km)
         return user.elo
