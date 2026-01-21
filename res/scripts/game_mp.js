@@ -22,6 +22,7 @@ let appState = JSON.parse(localStorage.getItem('appState'));
 let phrases = null;
 const defaultCoord = { lat: 56.85579951654341, lng: 60.60928861349073 };
 let countUpdate = 0;
+let flagRes = true;
 
 const PLACE_COLORS = [
     '#a3f5c8',
@@ -63,6 +64,7 @@ function handleServerMessage(msg) {
         case 'pano_id':
             console.log('PANO_IS I GOT', msg.pano_id)
             game.panoId = msg.pano_id;
+            flagRes = true
             updateStreetViewPlayer();
             break;
 
@@ -77,7 +79,10 @@ function handleServerMessage(msg) {
         case 'round_result':
             // type: ‘round_result’, results: [ {name, coord, ...}, ... ]
             // Сохраняем/отображаем результаты
-            resultGame(msg.results);
+            if (flagRes) {
+                resultGame(msg.results);
+                flagRes = false
+            }
             break;
 
         case 'game_reset':
@@ -274,6 +279,11 @@ function startTimer() { //вызывается когда получили со�
             clearInterval(interval);
             game.firstAns = false
             myResult();
+            if (appState.isHost) {
+                socket.send(JSON.stringify({
+                    type: 'game_over',
+                }));
+            }
             //playersResults - получаем с сервера
             //playersResults = debugPlayersRes()
             //resultGame(playersResults);
@@ -294,8 +304,9 @@ function myResult() {
         name: appState.user,
         lat: pos.lat,
         lng: pos.lng,
-        distance: Math.round(distance /100)
+        distance: Math.round(distance / 100)
     }));
+    console.log(appState.user, pos.lat, pos.lng, Math.round(distance / 100))
     document.getElementById("frase").textContent = frase(distance / 1000)
     appState.lobbyScore += scoreFromDistance(distance / 1000)
     appState.lobbyGames++;
