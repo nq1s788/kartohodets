@@ -82,19 +82,22 @@ class ConnectionManager:
         print(lat, lng)
         update = UserService.update_coord(db, email, lat, lng)
         if update == None:
-            print('ПИЗДЕЦ', email, lat, lng)
+            print('ломаемся', email, lat, lng)
         UserService.update_temp_score(db, email, distance)
         UserService.update_and_return_elo(db, email, distance)
 
+
+
+    async def handle_game_reset(self, lobby_code: int):
+        await self.broadcast_to_lobby(lobby_code, {"type": 'game_reset'})
+
+    async def handle_game_over(self, lobby_code: int, db: Session):
         results = RoomService.get_all_users_with_coord_and_tempelo(db, lobby_code)
         message = {
             "type": 'round_result',
             "results": results
         }
         await self.broadcast_to_lobby(lobby_code, message)
-
-    async def handle_game_reset(self, lobby_code: int):
-        await self.broadcast_to_lobby(lobby_code, {"type": 'game_reset'})
 
 
 
