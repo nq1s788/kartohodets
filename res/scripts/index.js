@@ -54,6 +54,7 @@ function checkLocalStorage() {
         appState.user = token;
         showScreen('menu-screen');
         console.log("вход по токену");
+        console.log(token);
     } else {
         // Токена нет, показываем логин
         initGoogleLogin();
