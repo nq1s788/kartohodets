@@ -115,7 +115,8 @@ class UserService:
         user = UserService.get_user_by_email(db, email)
         if not user:
             return None
-        user.sum_km += int((40075 / 2 - km) / 10)
+        user.sum_km += int((40075 / 2 - km) / 10) + 100
+        print(user.sum_km)
         user.matches += 1
         user.elo = round(user.sum_km / user.matches)
         db.commit()
