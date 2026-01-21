@@ -89,6 +89,8 @@ connectWebSocket()
 // Инициализации
 
 function smoothRedirect(url) {
+    localStorage.setItem('appState', JSON.stringify(appState));
+
     const fade = document.getElementById('fade');
     fade.classList.add('active');
 
@@ -197,8 +199,10 @@ function updateStreetView() {
     const svService = new google.maps.StreetViewService();
     showGameUI('search');
     if (isHost) {
-        const coords = getRandomCoords();
-        if (countUpdate > 5) coords = defaultCoord;
+        let coords = getRandomCoords();
+        if (countUpdate > 10) {
+            coords = defaultCoord;
+        }
         svService.getPanorama({ location: coords, radius: 5000 }, (data, status) => {
             if (status === google.maps.StreetViewStatus.OK) {
                 game.ansLoc = data.location.latLng;
@@ -286,12 +290,12 @@ function startTimer() { //вызывается когда получили со�
     }, 1000);
 }
 
-let _myRes = { name: appState.user, temp_score: 17 };
+let _myRes = { name: appState.user, temp_score: 0 };
 function myResult() {
     const pos = game.userMarker.position;
 
 
-    let distance = google.maps.geometry.spherical.computeDistanceBetween(game.ansLoc, game.userMarker.position);
+    let distance = Math.round(google.maps.geometry.spherical.computeDistanceBetween(game.ansLoc, game.userMarker.position));
     _myRes.coord = { lat: pos.lat, lng: pos.lng };
     //отправить на сервер lat lng
     socket.send(JSON.stringify({
@@ -301,7 +305,7 @@ function myResult() {
         lng: pos.lng,
         distance: Math.round(distance / 100)
     }));
-    console.log(appState.user, pos.lat, pos.lng, Math.round(distance / 100))
+    console.log(appState.user, pos.lat, pos.lng, distance)
     document.getElementById("frase").textContent = frase(distance / 1000)
     appState.lobbyScore += scoreFromDistance(distance / 1000)
     appState.lobbyGames++;
@@ -327,10 +331,10 @@ function resultGame(playersResults) {
 
     const ranked = playersResults
         .map(player => {
-            const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            const distance = Math.round(google.maps.geometry.spherical.computeDistanceBetween(
                 game.ansLoc,
                 player.coord
-            );
+            ));
             return { ...player, distance };
         })
         .sort((a, b) => a.distance - b.distance);
@@ -414,14 +418,13 @@ function addRating(ranked) {
         const div = document.createElement('div');
         div.className = 'lider';
         //div.style.borderLeft = `6px solid ${PLACE_COLORS[index]}`;
-
+        let dist = player.distance < 1000 ? `${player.distance} m` : `${(player.distance / 1000).toFixed(1)} km`;
         div.innerHTML = `
             <span class="icon"><div class="color" style="background-color: ${PLACE_COLORS[index]}"></div></span>
             <div style="justify-content: left;">${player.name}</div>
-            <div style="justify-content: center;">${player.temp_score}</div>
-            <div style="justify-content: right;">${(player.distance / 1000).toFixed(0)} km</div>
+            <div style="justify-content: center;">${appState.lobbyScore}</div>
+            <div style="justify-content: right;">${dist}</div>
         `;
-
         liders.appendChild(div);
     });
 }

@@ -25,6 +25,7 @@ window.onload = () => {
         showScreen(uiState);
         localStorage.removeItem('uiState');
     }
+    loadLeaderboard()
 };
 window.addEventListener('load', () => {
     const fade = document.getElementById('fade');
@@ -214,7 +215,6 @@ async function joinLobby() {
         if (response.ok) {
             appState.currentLobby = code;
             appState.isHost = false;
-            localStorage.setItem('appState', JSON.stringify(appState));
             renderLobbyScreen();
         }   else {
              console.error("Server returned:", response.status);
@@ -250,7 +250,6 @@ async function createLobby() {
 
         appState.isHost = true;
         appState.currentLobby = lobbyCode;
-        localStorage.setItem('appState', JSON.stringify(appState));
         renderLobbyScreen();
 
     } catch (error) {
