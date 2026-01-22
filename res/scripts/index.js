@@ -1,5 +1,5 @@
 const API_BASE_URL = "http://localhost:8000";
-const CLIENT_ID = "794548858892-t83a74dfs01bcftf54q1ng82gt9738tj.apps.googleusercontent.com";
+const CLIENT_ID = CONFIG.GOOGLE_CLIENT_ID;
 
 // Состояние приложения
 const appState = JSON.parse(localStorage.getItem('appState'))

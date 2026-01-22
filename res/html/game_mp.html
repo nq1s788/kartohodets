@@ -6,10 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kartohodets</title>
     <link rel="stylesheet" href="../css/game.css">
+    <script src="../scripts/config.js"></script>
     <!-- Подключаем API с callback на initMap -->
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDuLp1CUBzwTWRhkyUT4PYR4RnXuEE_UmA&callback=initMap&v=weekly&libraries=marker"
-        async defer></script>
+    <script>
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_MAPS_KEY}&callback=initMap&v=weekly&libraries=marker`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        loadGoogleMaps();
+    </script>
 
     <script src="../scripts/game_mp.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">

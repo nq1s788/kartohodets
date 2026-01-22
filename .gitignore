@@ -1,3 +1,4 @@
+config.js
 node_modules/
 my_backend.egg-info/
 __pycache__/
